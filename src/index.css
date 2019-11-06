@@ -15,15 +15,29 @@ code {
 .cell {
   width: 20px;
   height: 20px;
-  border: 1px solid #000;
+  background: #ffffff;
+}
+
+[data-value="1"] {
+  background: red;
 }
 
 .row {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 20px 20px 20px;
+  grid-gap: 1px;
+  border-bottom: 1px solid black;
+}
+
+.row:last-child {
+  border-bottom: none;
 }
 
 .board {
-  display: flex;
-  flex-direction: column;
+  width: 62px;
+  background: #000000;
+  border: 1px solid #000000;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-row-gap: 1px;
+  margin-bottom: 15px;
 }
