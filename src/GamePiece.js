@@ -1,7 +1,7 @@
 import React from 'react';
 import rotate from './lib/rotate.js'
 
-export default class Piece extends React.PureComponent {
+export default class GamePiece extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,7 +19,6 @@ export default class Piece extends React.PureComponent {
   }
 
   render() {
-
     return (
       <div className="board">
         {
