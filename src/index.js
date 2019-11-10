@@ -9,13 +9,13 @@ export default class Tetris extends React.Component {
     super(props);
     this.state = {
       board: [
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
@@ -38,6 +38,12 @@ export default class Tetris extends React.Component {
   }
 
   componentDidMount() {
+    this.setNewTetromino();
+    window.addEventListener('keydown', this.keyPress);
+    window.setInterval(() => this.runCycle(), 1000);
+  }
+
+  setNewTetromino = () => {
     const r = Math.floor(Math.random() * Math.floor(7));
     const activeTetromino = tetrominos[r];
     this.setState({
@@ -45,8 +51,15 @@ export default class Tetris extends React.Component {
       activeTetromino: activeTetromino.matrix,
       activeTetrominoValue: tetrominos[r].value,
     })
-    window.addEventListener('keydown', this.keyPress);
-    window.setInterval(() => this.moveTetromino(), 1000);
+  }
+
+  runCycle = () => {
+    if (this.tetrominoHasCollided()) {
+      this.freezeTetromino();
+      this.setNewTetromino();
+    } else {
+      this.moveTetromino();
+    }
   }
 
   keyPress = (event) => {
@@ -66,7 +79,6 @@ export default class Tetris extends React.Component {
   }
 
   moveTetromino = (direction) => {
-    // this.freezeTetrimino();
     let board = this.state.board;
     const rLength = board.length-1;
     const cLength = board[0].length-1;
@@ -88,8 +100,8 @@ export default class Tetris extends React.Component {
           for(let i=rLength;i>=0;i--) {
             for(let j=cLength;j>=0;j--) {
               if (board[i][j]>0) {
-                  board[i][j] = 0;
-                  board[i][j+1] = this.state.activeTetrominoValue;
+                board[i][j] = 0;
+                board[i][j+1] = this.state.activeTetrominoValue;
               }
             }
           }
@@ -100,10 +112,8 @@ export default class Tetris extends React.Component {
           for(let i=rLength;i>=0;i--) {
             for(let j=0;j<=11;j++) {
               if (board[i][j]>0) {
-                if (board[i+1][j]===0) {
-                  board[i][j] = 0;
-                  board[i+1][j] = this.state.activeTetrominoValue;
-                }
+                board[i][j] = 0;
+                board[i+1][j] = this.state.activeTetrominoValue;
               }
             }
           }
@@ -114,10 +124,8 @@ export default class Tetris extends React.Component {
           for(let i=rLength;i>=0;i--) {
             for(let j=0;j<=11;j++) {
               if (board[i][j]>0) {
-                if (board[i+1][j]===0) {
-                  board[i][j] = 0;
-                  board[i+1][j] = this.state.activeTetrominoValue;
-                }
+                board[i][j] = 0;
+                board[i+1][j] = this.state.activeTetrominoValue;
               }
             }
           }
@@ -159,7 +167,6 @@ export default class Tetris extends React.Component {
     }
     return canMove;
   }
-  
 
   canMoveDown = () => {
     let canMove = true;
@@ -177,20 +184,21 @@ export default class Tetris extends React.Component {
     return canMove;
   }
 
-  freezeTetrimino = () => {
+  freezeTetromino = () => {
     let board = this.state.board;
     const rLength = board.length-1;
     const cLength = board[0].length-1;
-    if (this.canMoveDown === false) {
-      for(let i=rLength;i>=0;i--) {
-        for(let j=0;j<=cLength;j++) {
-          if (this.state.board[i][j]===1) {
-            board[i][j] = 0;
-            board[i][j] = 1;
-          }
+    for(let i=rLength;i>=0;i--) {
+      for(let j=0;j<=cLength;j++) {
+        if (this.state.board[i][j]>0) {
+          board[i][j] = -Math.abs(board[i][j]);
         }
       }
     }
+  }
+
+  tetrominoHasCollided = () => {
+    return !this.canMoveDown();
   }
 
   render() {
