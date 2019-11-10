@@ -16,11 +16,11 @@ export default class Tetris extends React.Component {
         // [-1,0,0,0,0,0,0,0,0,0,0,-1],
         // [-1,0,0,0,0,0,0,0,0,0,0,-1],
         // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
@@ -34,6 +34,7 @@ export default class Tetris extends React.Component {
       activeTetrominoPos: [0,4],
       activeTetromino: [],
       activeTetrominoValue: 0,
+      winningRow:0,
     }
   }
 
@@ -44,7 +45,8 @@ export default class Tetris extends React.Component {
   }
 
   setNewTetromino = () => {
-    const r = Math.floor(Math.random() * Math.floor(7));
+    // const r = Math.floor(Math.random() * Math.floor(7));
+    const r = 0;
     const activeTetromino = tetrominos[r];
     this.setState({
       board: this.addTetrominoToBoard(activeTetromino.matrix),
@@ -56,10 +58,36 @@ export default class Tetris extends React.Component {
   runCycle = () => {
     if (this.tetrominoHasCollided()) {
       this.freezeTetromino();
+      this.checkForCompleteRow();
       this.setNewTetromino();
     } else {
       this.moveTetromino();
     }
+  }
+
+  rowIsComplete = (row) => {
+    return row < 0;
+  }
+
+  checkForCompleteRow = () => {
+    let board = this.state.board;
+    const rLength = board.length-2; // -2 to skip the floor row
+    const cLength = board[0].length-1;
+    let winningRows = [];
+    for(let i=rLength;i>=0;i--) {
+      if (board[i].every(this.rowIsComplete)) {
+        board.splice(i,1);
+        board.unshift([-1,0,0,0,0,0,0,0,0,0,0,-1]);
+        this.setState({
+          board,
+        });
+        this.checkForCompleteRow();
+      }
+    }
+  }
+
+  moveAboveRowsDown = (i) => {
+
   }
 
   keyPress = (event) => {
