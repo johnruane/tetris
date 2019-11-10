@@ -25,8 +25,33 @@ code {
   border: 1px solid #000000;
 }
 
-[data-value="1"] {
+[data-value="3"],
+[data-value="-3"] {
   background: red;
+}
+[data-value="4"],
+[data-value="-4"] {
+  background: blue;
+}
+[data-value="5"],
+[data-value="-5"] {
+  background: green;
+}
+[data-value="6"],
+[data-value="-6"] {
+  background: yellow;
+}
+[data-value="7"],
+[data-value="-7"] {
+  background: lightblue;
+}
+[data-value="8"],
+[data-value="-8"] {
+  background: orange;
+}
+[data-value="9"],
+[data-value="-9"] {
+  background: purple;
 }
 
 [data-value="-1"],

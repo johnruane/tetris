@@ -31,13 +31,19 @@ export default class Tetris extends React.Component {
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]
       ],
-      activeTetrominoPos: [0][4],
+      activeTetrominoPos: [0,4],
+      activeTetromino: [],
+      activeTetrominoValue: 0,
     }
   }
 
   componentDidMount() {
+    const r = Math.floor(Math.random() * Math.floor(7));
+    const activeTetromino = tetrominos[r];
     this.setState({
-      board: this.addTetrominoToBoard(),
+      board: this.addTetrominoToBoard(activeTetromino.matrix),
+      activeTetromino: activeTetromino.matrix,
+      activeTetrominoValue: tetrominos[r].value,
     })
     window.addEventListener('keydown', this.keyPress);
     window.setInterval(() => this.moveTetromino(), 1000);
@@ -47,11 +53,10 @@ export default class Tetris extends React.Component {
     this.moveTetromino(event.code);
   }
 
-  addTetrominoToBoard() {
+  addTetrominoToBoard = (tetromino) => {
     const r = 0;
     const c = 4;
     let board = this.state.board;
-    const tetromino = tetrominos[Math.floor(Math.random() * Math.floor(7))];
     tetromino.map((trow, rindex) => {
       trow.map((tcolumn, cindex) => {
         board[r+rindex][c+cindex] = tcolumn;
@@ -61,61 +66,62 @@ export default class Tetris extends React.Component {
   }
 
   moveTetromino = (direction) => {
+    // this.freezeTetrimino();
     let board = this.state.board;
     const rLength = board.length-1;
     const cLength = board[0].length-1;
-      switch(direction) {
-        case 'ArrowLeft':
-          if (this.canMoveLeft()) {
-            for(let i=rLength;i>=0;i--) {
-              for(let j=0;j<=cLength;j++) {
-                if (board[i][j]===1) {
-                    board[i][j] = 0;
-                    board[i][j-1] = 1;
-                }
-              }
-            }
-          }
-        break;
-        case 'ArrowRight':
-          if (this.canMoveRight()) {
-            for(let i=rLength;i>=0;i--) {
-              for(let j=cLength;j>=0;j--) {
-                if (board[i][j]===1) {
-                    board[i][j] = 0;
-                    board[i][j+1] = 1;
-                }
-              }
-            }
-          }
-        break;
-        case 'ArrowDown':
+    switch(direction) {
+      case 'ArrowLeft':
+        if (this.canMoveLeft()) {
           for(let i=rLength;i>=0;i--) {
-            if (this.canMoveDown()) {
-              for(let j=0;j<=11;j++) {
-                if (board[i][j]===1) {
-                  if (board[i+1][j]===0) {
-                    board[i][j] = 0;
-                    board[i+1][j] = 1;
-                  }
-                }
+            for(let j=0;j<=cLength;j++) {
+              if (board[i][j]>0) {
+                  board[i][j] = 0;
+                  board[i][j-1] = this.state.activeTetrominoValue;
               }
             }
           }
-        break;
-        default:
+        }
+      break;
+      case 'ArrowRight':
+        if (this.canMoveRight()) {
           for(let i=rLength;i>=0;i--) {
-            if (this.canMoveDown()) {
-              for(let j=0;j<=11;j++) {
-                if (board[i][j]===1) {
-                  if (board[i+1][j]===0) {
-                    board[i][j] = 0;
-                    board[i+1][j] = 1;
-                  }
+            for(let j=cLength;j>=0;j--) {
+              if (board[i][j]>0) {
+                  board[i][j] = 0;
+                  board[i][j+1] = this.state.activeTetrominoValue;
+              }
+            }
+          }
+        }
+      break;
+      case 'ArrowDown':
+        if (this.canMoveDown()) {
+          for(let i=rLength;i>=0;i--) {
+            for(let j=0;j<=11;j++) {
+              if (board[i][j]>0) {
+                if (board[i+1][j]===0) {
+                  board[i][j] = 0;
+                  board[i+1][j] = this.state.activeTetrominoValue;
                 }
               }
             }
           }
+        }
+      break;
+      default:
+        if (this.canMoveDown()) {
+          for(let i=rLength;i>=0;i--) {
+            for(let j=0;j<=11;j++) {
+              if (board[i][j]>0) {
+                if (board[i+1][j]===0) {
+                  board[i][j] = 0;
+                  board[i+1][j] = this.state.activeTetrominoValue;
+                }
+              }
+            }
+          }
+        }
       }
     this.setState({
       board,
@@ -128,8 +134,8 @@ export default class Tetris extends React.Component {
     const cLength = this.state.board[0].length-1;
     for(let i=rLength;i>=0;i--) {
       for(let j=0;j<=cLength;j++) {
-        if (this.state.board[i][j]===1) {
-          if (this.state.board[i][j-1]===-1) {
+        if (this.state.board[i][j]>0) {
+          if (this.state.board[i][j-1]<0) {
             canMove = false;
           }
         }
@@ -144,8 +150,8 @@ export default class Tetris extends React.Component {
     const cLength = this.state.board[0].length-1;
     for(let i=rLength;i>=0;i--) {
       for(let j=cLength;j>=0;j--) {
-        if (this.state.board[i][j]===1) {
-          if (this.state.board[i][j+1]===-1) {
+        if (this.state.board[i][j]>0) {
+          if (this.state.board[i][j+1]<0) {
             canMove = false;
           }
         }
@@ -161,14 +167,30 @@ export default class Tetris extends React.Component {
     const cLength = this.state.board[0].length-1;
     for(let i=rLength;i>=0;i--) {
       for(let j=0;j<=cLength;j++) {
-        if (this.state.board[i][j]===1) {
-          if (this.state.board[i+1][j]===-1) {
+        if (this.state.board[i][j]>0) {
+          if (this.state.board[i+1][j]<0) {
             canMove = false;
           }
         }
       }
     }
     return canMove;
+  }
+
+  freezeTetrimino = () => {
+    let board = this.state.board;
+    const rLength = board.length-1;
+    const cLength = board[0].length-1;
+    if (this.canMoveDown === false) {
+      for(let i=rLength;i>=0;i--) {
+        for(let j=0;j<=cLength;j++) {
+          if (this.state.board[i][j]===1) {
+            board[i][j] = 0;
+            board[i][j] = 1;
+          }
+        }
+      }
+    }
   }
 
   render() {
