@@ -65,6 +65,7 @@ export default class Tetris extends React.Component {
     }
   }
 
+  // return true if all row columns are negative
   rowIsComplete = (row) => {
     return row < 0;
   }
@@ -72,28 +73,27 @@ export default class Tetris extends React.Component {
   checkForCompleteRow = () => {
     let board = this.state.board;
     const rLength = board.length-2; // -2 to skip the floor row
-    const cLength = board[0].length-1;
-    let winningRows = [];
     for(let i=rLength;i>=0;i--) {
       if (board[i].every(this.rowIsComplete)) {
-        board.splice(i,1);
-        board.unshift([-1,0,0,0,0,0,0,0,0,0,0,-1]);
+        board.splice(i,1); // remove row from board
+        board.unshift([-1,0,0,0,0,0,0,0,0,0,0,-1]); // add new row to board start
         this.setState({
           board,
         });
-        this.checkForCompleteRow();
+        this.checkForCompleteRow(); // repeat check for rows in case of multiple wins
       }
     }
   }
 
-  moveAboveRowsDown = (i) => {
-
-  }
-
   keyPress = (event) => {
-    this.moveTetromino(event.code);
+    const key = event.code;
+    if (key === "Space") {
+
+    }
+    this.moveTetromino(key);
   }
 
+  // adds a new piece to the board a position 0,4
   addTetrominoToBoard = (tetromino) => {
     const r = 0;
     const c = 4;
@@ -108,6 +108,7 @@ export default class Tetris extends React.Component {
 
   moveTetromino = (direction) => {
     let board = this.state.board;
+    let pos = this.state.activeTetrominoPos;
     const rLength = board.length-1;
     const cLength = board[0].length-1;
     switch(direction) {
@@ -164,6 +165,9 @@ export default class Tetris extends React.Component {
     })
   }
 
+  // loops through rows & columns (from left to right). if a positive number is 
+  // found it will check the column to the left and set canMove to false if it 
+  // is a negative number
   canMoveLeft = () => {
     let canMove = true;
     const rLength = this.state.board.length-1;
@@ -180,6 +184,9 @@ export default class Tetris extends React.Component {
     return canMove;
   }
 
+  // loops through rows & columns (from right to left). if a positive number is 
+  // found it will check the column to the right and set canMove to false if it 
+  // is a negative number
   canMoveRight = () => {
     let canMove = true;
     const rLength = this.state.board.length-1;
@@ -196,6 +203,9 @@ export default class Tetris extends React.Component {
     return canMove;
   }
 
+  // loops through rows & columns. if a positive number is found it will check
+  // the row below the found square and set canMove to false if it is a
+  // negative number
   canMoveDown = () => {
     let canMove = true;
     const rLength = this.state.board.length-1;
@@ -212,6 +222,8 @@ export default class Tetris extends React.Component {
     return canMove;
   }
 
+  // loops through rows & columns and turns numbered square negative in order
+  // to stop them from being moved
   freezeTetromino = () => {
     let board = this.state.board;
     const rLength = board.length-1;
