@@ -7,16 +7,16 @@ export default class GamePiece extends React.PureComponent {
     this.state = {
       matrix: this.props.pieceMatrix
     }
-    document.addEventListener('keydown', this.rotateShape);
+    // document.addEventListener('keydown', this.rotateShape);
   }
 
-  rotateShape = (e) => {
-    if (e.code === 'Space') {
-      this.setState({
-        matrix: rotate(this.state.matrix),
-      })
-    }
-  }
+  // rotateShape = (e) => {
+  //   if (e.code === 'Space') {
+  //     this.setState({
+  //       matrix: rotate(this.state.matrix),
+  //     })
+  //   }
+  // }
 
   render() {
     return (

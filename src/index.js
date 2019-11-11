@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import GamePiece from './GamePiece.js';
+import rotate from './lib/rotate.js';
 import tetrominos from './lib/tetrominos.js';
 import './index.css';
 
@@ -9,18 +9,18 @@ export default class Tetris extends React.Component {
     super(props);
     this.state = {
       board: [
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
@@ -31,10 +31,10 @@ export default class Tetris extends React.Component {
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]
       ],
-      activeTetrominoPos: [0,4],
+      tetrominoPosR: 0,
+      tetrominoPosC: 4,
       activeTetromino: [],
       activeTetrominoValue: 0,
-      winningRow:0,
     }
   }
 
@@ -45,13 +45,15 @@ export default class Tetris extends React.Component {
   }
 
   setNewTetromino = () => {
-    // const r = Math.floor(Math.random() * Math.floor(7));
-    const r = 0;
+    const r = Math.floor(Math.random() * Math.floor(7));
     const activeTetromino = tetrominos[r];
+    this.addTetrominoToBoard(activeTetromino.matrix, 0, 4);
     this.setState({
-      board: this.addTetrominoToBoard(activeTetromino.matrix),
       activeTetromino: activeTetromino.matrix,
       activeTetrominoValue: tetrominos[r].value,
+      // reset to default position
+      tetrominoPosC: 4,
+      tetrominoPosR: 0,
     })
   }
 
@@ -61,7 +63,7 @@ export default class Tetris extends React.Component {
       this.checkForCompleteRow();
       this.setNewTetromino();
     } else {
-      this.moveTetromino();
+      this.moveTetromino('ArrowDown');
     }
   }
 
@@ -88,29 +90,60 @@ export default class Tetris extends React.Component {
   keyPress = (event) => {
     const key = event.code;
     if (key === "Space") {
-
+      this.rotateTetromino();
+    } else {
+      this.moveTetromino(key);
     }
-    this.moveTetromino(key);
+  }
+
+  // rotate the active game piece, clears he board, add new rotation to board
+  rotateTetromino = () => {
+    if (this.canRotate()) {
+      const rotatedTetromino = rotate(this.state.activeTetromino);
+      this.setState({
+        activeTetromino: rotatedTetromino,
+      });
+      this.clearBoard();
+      this.addTetrominoToBoard(rotatedTetromino, this.state.tetrominoPosR, this.state.tetrominoPosC);
+    }
+  }
+
+  // does what it says
+  clearBoard = () => {
+    let board = this.state.board;
+    const rLength = board.length-1;
+    const cLength = board[0].length-1;
+    for(let i=rLength;i>=0;i--) {
+      for(let j=0;j<=cLength;j++) {
+        if (board[i][j] > 0) {
+          board[i][j] = 0;
+        }
+      }
+    }
+    this.setState({
+      board,
+    })
   }
 
   // adds a new piece to the board a position 0,4
-  addTetrominoToBoard = (tetromino) => {
-    const r = 0;
-    const c = 4;
+  addTetrominoToBoard = (tetromino, r, c) => {
     let board = this.state.board;
     tetromino.map((trow, rindex) => {
-      trow.map((tcolumn, cindex) => {
-        board[r+rindex][c+cindex] = tcolumn;
+      trow.map((vaule, cindex) => {
+        board[r+rindex][c+cindex] = vaule;
       })
     });
-    return board;
+    this.setState({
+      board,
+    })
   }
 
   moveTetromino = (direction) => {
     let board = this.state.board;
-    let pos = this.state.activeTetrominoPos;
     const rLength = board.length-1;
     const cLength = board[0].length-1;
+    const r = this.state.tetrominoPosR;
+    const c = this.state.tetrominoPosC;
     switch(direction) {
       case 'ArrowLeft':
         if (this.canMoveLeft()) {
@@ -119,6 +152,9 @@ export default class Tetris extends React.Component {
               if (board[i][j]>0) {
                   board[i][j] = 0;
                   board[i][j-1] = this.state.activeTetrominoValue;
+                  this.setState({
+                    tetrominoPosC: c-1,
+                  });
               }
             }
           }
@@ -131,6 +167,9 @@ export default class Tetris extends React.Component {
               if (board[i][j]>0) {
                 board[i][j] = 0;
                 board[i][j+1] = this.state.activeTetrominoValue;
+                this.setState({
+                  tetrominoPosC: c+1,
+                });
               }
             }
           }
@@ -143,26 +182,23 @@ export default class Tetris extends React.Component {
               if (board[i][j]>0) {
                 board[i][j] = 0;
                 board[i+1][j] = this.state.activeTetrominoValue;
+                this.setState({
+                  tetrominoPosR: r+1,
+                });
               }
             }
           }
         }
       break;
-      default:
-        if (this.canMoveDown()) {
-          for(let i=rLength;i>=0;i--) {
-            for(let j=0;j<=11;j++) {
-              if (board[i][j]>0) {
-                board[i][j] = 0;
-                board[i+1][j] = this.state.activeTetrominoValue;
-              }
-            }
-          }
-        }
+      default: // do nothing
       }
     this.setState({
       board,
     })
+  }
+
+  canRotate = () => {
+    return true;
   }
 
   // loops through rows & columns (from left to right). if a positive number is 
@@ -231,7 +267,7 @@ export default class Tetris extends React.Component {
     for(let i=rLength;i>=0;i--) {
       for(let j=0;j<=cLength;j++) {
         if (this.state.board[i][j]>0) {
-          board[i][j] = -Math.abs(board[i][j]);
+          board[i][j] = -Math.abs(board[i][j]); // negate piece values to freeze
         }
       }
     }
@@ -259,13 +295,19 @@ export default class Tetris extends React.Component {
             )
           }
         </div>
-        {/* <GamePiece pieceMatrix={tetrominos[Math.floor(Math.random() * Math.floor(7))]} />
-         */}
-        {/* {
-          tetrominos.map(piece =>
-            <GamePiece pieceMatrix={piece} />
-          )
-        } */}
+        <div className="board">
+          {
+            this.state.activeTetromino.map((row) => (
+              <div className="row">
+                {
+                  row.map((value) => (
+                    <div className="cell" data-value={value}></div>
+                  ))
+                }
+              </div>
+            ))
+          }
+        </div>
       </div>
     );
   }
