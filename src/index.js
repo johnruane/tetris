@@ -31,6 +31,8 @@ export default class Tetris extends React.Component {
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]
       ],
+      mBoard: [],
+      testBoard: [],
       tetrominoPosR: 0,
       tetrominoPosC: 4,
       activeTetromino: [],
@@ -44,14 +46,18 @@ export default class Tetris extends React.Component {
     window.setInterval(() => this.runCycle(), 1000);
   }
 
+  cloneArray = (array) => {
+    const strArray = JSON.stringify(array);
+    return JSON.parse(strArray);
+  }
+
   setNewTetromino = () => {
     const r = Math.floor(Math.random() * Math.floor(7));
     const activeTetromino = tetrominos[r];
-    this.addTetrominoToBoard(activeTetromino.matrix, 0, 4);
     this.setState({
+      board: this.addTetrominoToBoard(this.state.board, activeTetromino.matrix, 0, 4),
       activeTetromino: activeTetromino.matrix,
       activeTetrominoValue: tetrominos[r].value,
-      // reset to default position
       tetrominoPosC: 4,
       tetrominoPosR: 0,
     })
@@ -98,19 +104,32 @@ export default class Tetris extends React.Component {
 
   // rotate the active game piece, clears he board, add new rotation to board
   rotateTetromino = () => {
-    if (this.canRotate()) {
-      const rotatedTetromino = rotate(this.state.activeTetromino);
+    const rotatedTetromino = rotate(this.state.activeTetromino);
+    let mBoard = this.addTetrominoToBoard(this.clearBoard(this.cloneArray(this.state.board)), rotatedTetromino, this.state.tetrominoPosR, this.state.tetrominoPosC);
+      
+    let canRotate = true;
+    const rLength = mBoard.length-1;
+    const cLength = mBoard[0].length-1;
+    for(let i=0;i<=rLength;i++) {
+      for(let j=0;j<=cLength;j++) {
+        if (mBoard[i][j] > 0) {
+          if (this.state.board[i][j] < 0) {
+            canRotate = false;
+          }
+        }
+      }
+    }
+
+    if (canRotate) {
       this.setState({
+        board: mBoard,
         activeTetromino: rotatedTetromino,
-      });
-      this.clearBoard();
-      this.addTetrominoToBoard(rotatedTetromino, this.state.tetrominoPosR, this.state.tetrominoPosC);
+      })
     }
   }
 
   // does what it says
-  clearBoard = () => {
-    let board = this.state.board;
+  clearBoard = (board) => {
     const rLength = board.length-1;
     const cLength = board[0].length-1;
     for(let i=rLength;i>=0;i--) {
@@ -120,22 +139,19 @@ export default class Tetris extends React.Component {
         }
       }
     }
-    this.setState({
-      board,
-    })
+    return board;
   }
 
   // adds a new piece to the board a position 0,4
-  addTetrominoToBoard = (tetromino, r, c) => {
-    let board = this.state.board;
-    tetromino.map((trow, rindex) => {
-      trow.map((vaule, cindex) => {
-        board[r+rindex][c+cindex] = vaule;
-      })
-    });
-    this.setState({
-      board,
-    })
+  addTetrominoToBoard = (board, tetromino, r, c) => {
+    let newBoard = board.slice(0);
+    const length = tetromino.length-1;
+    for(let i=0;i<=length;i++) {
+      for(let j=0;j<=length;j++) {
+        newBoard[r+i][c+j] = tetromino[i][j];
+      }
+    };
+    return newBoard;
   }
 
   moveTetromino = (direction) => {
@@ -195,10 +211,6 @@ export default class Tetris extends React.Component {
     this.setState({
       board,
     })
-  }
-
-  canRotate = () => {
-    return true;
   }
 
   // loops through rows & columns (from left to right). if a positive number is 
