@@ -9,19 +9,19 @@ export default class Tetris extends React.Component {
     super(props);
     this.state = {
       board: [
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
@@ -65,9 +65,24 @@ export default class Tetris extends React.Component {
   setNewTetromino = () => {    
     const r = Math.floor(Math.random() * Math.floor(7));
     const activeTetromino = tetrominos[r];
-    const newBoard = this.addTetrominoToBoard(this.state.board, activeTetromino.matrix, 0,  4);
+    // let canAddTetromino = true;
+
+    const mBoard = this.addTetrominoToBoard(this.cloneArray(this.state.board), activeTetromino.matrix, 0, 4);
+
+    // const tl = activeTetromino.matrix.length-1;
+
+    // for(let i=tl;i>0;i--) {
+    //   for(let j=0;j<tl;j++) {
+    //     if (mBoard[i][j] > 0) {
+    //       if (this.state.board[i][j] < 0) {
+    //         canAddTetromino = false;
+    //       }
+    //     }
+    //   }
+    // }
+
     this.setState({
-      board: newBoard,
+      board: mBoard,
       tetrominoPosR: 0,
       tetrominoPosC: 4,
       activeTetromino: activeTetromino.matrix,
