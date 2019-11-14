@@ -16,6 +16,23 @@ code {
   display: grid;
   justify-content: center;
   margin-top: 40px;
+  grid-template-columns: auto 100px;
+  grid-column-gap: 20px;
+}
+
+.stats {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+}
+
+.statLabel {
+  margin: 0;
+  font-weight: bold;
+}
+
+.score {
+  margin: 0;
 }
 
 .cell {

@@ -41,13 +41,15 @@ export default class Tetris extends React.Component {
       tetrominoPosR: 0,
       tetrominoPosC: 4,
       interval: 1000,
+      level: 1,
+      score: 0,
     }
   }
 
   componentDidMount() {
     this.setNewTetromino();
     window.addEventListener('keydown', this.keyPress);
-    window.setInterval(() => this.runCycle(), this.state.interval);
+    this.gameSpeed = window.setInterval(() => this.runCycle(), this.state.interval);
   }
 
   /*
@@ -87,6 +89,10 @@ export default class Tetris extends React.Component {
 
     if (canAddTetromino === false) {
       console.log('game over');
+      this.setState({
+        board: mBoard,
+      })
+      clearInterval(this.gameSpeed);
       return false;
     }
     
@@ -129,7 +135,7 @@ export default class Tetris extends React.Component {
     reverse loop through board. repeats check if winning row found
   */
   checkForCompleteRow = () => {
-    let board = this.state.board;
+    let { board } = this.state;
     const rLength = board.length-2; // -2 to skip the floor row
     for(let i=rLength;i>=0;i--) {
       if (board[i].every(this.rowIsComplete)) {
@@ -333,7 +339,7 @@ export default class Tetris extends React.Component {
   }
 
   render() {
-    const { board } = this.state;
+    const { board, score } = this.state;
 
     return (
       <div className="boardWrapper">
@@ -350,19 +356,24 @@ export default class Tetris extends React.Component {
             )
           }
         </div>
-        {/* <div className="board">
-          {
-            this.state.activeTetromino.map((row) => (
-              <div className="row">
-                {
-                  row.map((value) => (
-                    <div className="cell" data-value={value}></div>
-                  ))
-                }
-              </div>
-            ))
-          }
-        </div> */}
+        <div className="stats">
+          <p className="statLabel">Score</p>
+          <p className="score">{score}</p>
+          <p className="statLabel">Next</p>
+          <div className="board">
+            {
+              this.state.nextTetromino.matrix.map((row) => (
+                <div className="row">
+                  {
+                    row.map((value) => (
+                      <div className="cell" data-value={value}></div>
+                    ))
+                  }
+                </div>
+              ))
+            }
+          </div>
+        </div>
       </div>
     );
   }
