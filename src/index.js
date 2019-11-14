@@ -65,22 +65,26 @@ export default class Tetris extends React.Component {
   setNewTetromino = () => {    
     const r = Math.floor(Math.random() * Math.floor(7));
     const activeTetromino = tetrominos[r];
-    // let canAddTetromino = true;
+    let canAddTetromino = true;
 
     const mBoard = this.addTetrominoToBoard(this.cloneArray(this.state.board), activeTetromino.matrix, 0, 4);
+    const tl = activeTetromino.matrix.length-1;
 
-    // const tl = activeTetromino.matrix.length-1;
+    for(let i=tl;i>0;i--) {
+      for(let j=4;j<tl+4;j++) {
+        if (mBoard[i][j] > 0) { // if a piece on the move board
+          if (this.state.board[i][j] < 0) { // hits a bad piece on the state board
+            canAddTetromino = false;
+          }
+        }
+      }
+    }
 
-    // for(let i=tl;i>0;i--) {
-    //   for(let j=0;j<tl;j++) {
-    //     if (mBoard[i][j] > 0) {
-    //       if (this.state.board[i][j] < 0) {
-    //         canAddTetromino = false;
-    //       }
-    //     }
-    //   }
-    // }
-
+    if (canAddTetromino === false) {
+      console.log('game over');
+      return false;
+    }
+    
     this.setState({
       board: mBoard,
       tetrominoPosR: 0,
@@ -191,13 +195,15 @@ export default class Tetris extends React.Component {
   }
 
   /* 
-    adds a new piece to a board at position provided
+    adds a new piece (minus the zeros) to a board at position provided
   */
   addTetrominoToBoard = (board, tetromino, r, c) => {
     const length = tetromino.length-1;
     for(let i=0;i<=length;i++) {
       for(let j=0;j<=length;j++) {
-        board[r+i][c+j] = tetromino[i][j];
+        if (tetromino[i][j] > 0) {
+          board[r+i][c+j] = tetromino[i][j];
+        }
       }
     };
     return board;
