@@ -7,21 +7,25 @@ import './index.css';
 export default class Tetris extends React.Component {
   constructor(props) {
     super(props);
+
+    const tetromino = this.getRandomTetromino();
+    const nextTetromino = this.getRandomTetromino();
+
     this.state = {
       board: [
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
-        // [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
+        [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
@@ -31,12 +35,11 @@ export default class Tetris extends React.Component {
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]
       ],
+      activeTetromino: tetromino.matrix,
+      activeTetrominoValue: tetromino.value,
+      nextTetromino: nextTetromino,
       tetrominoPosR: 0,
       tetrominoPosC: 4,
-      activeTetromino: [],
-      // activeTetromino: tetrominos[this.randomNum()],
-      // nextTetromino: tetrominos[this.randomNum()],
-      activeTetrominoValue: 0,
       interval: 1000,
     }
   }
@@ -59,16 +62,18 @@ export default class Tetris extends React.Component {
     return Math.floor(Math.random() * Math.floor(7));
   }
 
+  getRandomTetromino = () => {
+    return tetrominos[Math.floor(Math.random() * Math.floor(7))];
+  }
+
   /*
     picks random tetromino and adds to board at start position
   */
   setNewTetromino = () => {    
-    const r = Math.floor(Math.random() * Math.floor(7));
-    const activeTetromino = tetrominos[r];
+    const { board, activeTetromino } = this.state;
+    const mBoard = this.addTetrominoToBoard(this.cloneArray(board), activeTetromino, 0, 4);
+    const tl = activeTetromino.length-1;
     let canAddTetromino = true;
-
-    const mBoard = this.addTetrominoToBoard(this.cloneArray(this.state.board), activeTetromino.matrix, 0, 4);
-    const tl = activeTetromino.matrix.length-1;
 
     for(let i=tl;i>0;i--) {
       for(let j=4;j<tl+4;j++) {
@@ -89,8 +94,8 @@ export default class Tetris extends React.Component {
       board: mBoard,
       tetrominoPosR: 0,
       tetrominoPosC: 4,
-      activeTetromino: activeTetromino.matrix,
-      activeTetrominoValue: activeTetromino.value,
+      // activeTetromino: activeTetromino.matrix,
+      // activeTetrominoValue: activeTetromino.value,
     })
   }
 
@@ -100,6 +105,13 @@ export default class Tetris extends React.Component {
   */
   runCycle = () => {
     if (this.moveTetromino('ArrowDown') === false) {
+      const { nextTetromino } = this.state;
+      this.setState({
+        activeTetromino: nextTetromino.matrix,
+        activeTetrominoValue: nextTetromino.value,
+        nextTetromino: this.getRandomTetromino(),
+      })
+
       this.freezeTetromino();
       this.checkForCompleteRow();
       this.setNewTetromino();
@@ -154,8 +166,9 @@ export default class Tetris extends React.Component {
     the current board to the temp board
   */
   rotateTetromino = () => {
-    const rotatedTetromino = rotate(this.state.activeTetromino);
-    let mBoard = this.addTetrominoToBoard(this.clearBoard(this.cloneArray(this.state.board)), rotatedTetromino, this.state.tetrominoPosR, this.state.tetrominoPosC);
+    const { board, activeTetromino } = this.state;
+    const rotatedTetromino = rotate(activeTetromino);
+    let mBoard = this.addTetrominoToBoard(this.clearBoard(this.cloneArray(board)), rotatedTetromino, this.state.tetrominoPosR, this.state.tetrominoPosC);
       
     let canRotate = true;
     const rLength = mBoard.length-1;
