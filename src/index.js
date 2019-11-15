@@ -61,12 +61,8 @@ export default class Tetris extends React.Component {
     return JSON.parse(strArray);
   }
 
-  randomNum = () => {
-    return Math.floor(Math.random() * Math.floor(7));
-  }
-
   getRandomTetromino = () => {
-    return tetrominos[Math.floor(Math.random() * Math.floor(7))];
+    return tetrominos[Math.floor(Math.random() * Math.floor(tetrominos.length))];
   }
 
   /*
@@ -101,8 +97,6 @@ export default class Tetris extends React.Component {
       board: mBoard,
       tetrominoPosR: 0,
       tetrominoPosC: 4,
-      // activeTetromino: activeTetromino.matrix,
-      // activeTetrominoValue: activeTetromino.value,
     })
   }
 
@@ -111,6 +105,7 @@ export default class Tetris extends React.Component {
     this test
   */
   runCycle = () => {
+    console.log('keydown');
     if (this.moveTetromino('ArrowDown') === false) {
       const { nextTetromino } = this.state;
       this.setState({
@@ -125,7 +120,7 @@ export default class Tetris extends React.Component {
     }
   }
 
- +3  /*
+   /*
     reverse loop through board. if every cell in a line is < 0 then that's a 
     winning row. remove winning row, add new row to beginning, increment multiplier.
     if winning row found multiply by 100 for score.
@@ -139,17 +134,16 @@ export default class Tetris extends React.Component {
       if (board[i].every((row) => row < 0)) {
         board.splice(i,1); // remove complete row from board
         board.unshift([-1,0,0,0,0,0,0,0,0,0,0,-1]); // add new row to board start
-        this.setState({
-          board,
-        });
         multiplier+=1;
         didFindWinningRow = true;
+        i++; // put the index back 1 as the rows have shifted down
       }
     }
 
     if (didFindWinningRow) {
       this.setState({
-        score: score + (100 * multiplier),
+        score: score + (100 * multiplier) * multiplier,
+        board,
       })
     }
   }
