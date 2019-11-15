@@ -24,6 +24,7 @@ code {
   display: grid;
   align-content: start;
   justify-items: center;
+  grid-row-gap: 5px;;
 }
 
 .statLabel {
@@ -33,6 +34,10 @@ code {
 
 .score {
   margin: 0;
+}
+
+.gameStatus {
+  font-weight: bold;
 }
 
 .cell {

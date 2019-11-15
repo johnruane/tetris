@@ -43,6 +43,7 @@ export default class Tetris extends React.Component {
       interval: 1000,
       level: 1,
       score: 0,
+      gameStatus: '',
     }
   }
 
@@ -88,9 +89,9 @@ export default class Tetris extends React.Component {
     }
 
     if (canAddTetromino === false) {
-      console.log('game over');
       this.setState({
         board: mBoard,
+        gameStatus: 'Game Over',
       })
       clearInterval(this.gameSpeed);
       return false;
@@ -124,28 +125,32 @@ export default class Tetris extends React.Component {
     }
   }
 
-  /* 
-    return true if all row columns are negative
-  */
-  rowIsComplete = (row) => {
-    return row < 0;
-  }
-
-  /*
-    reverse loop through board. repeats check if winning row found
+ +3  /*
+    reverse loop through board. if every cell in a line is < 0 then that's a 
+    winning row. remove winning row, add new row to beginning, increment multiplier.
+    if winning row found multiply by 100 for score.
   */
   checkForCompleteRow = () => {
-    let { board } = this.state;
+    let { board, score } = this.state;
     const rLength = board.length-2; // -2 to skip the floor row
+    let multiplier = 0;
+    let didFindWinningRow = false;
     for(let i=rLength;i>=0;i--) {
-      if (board[i].every(this.rowIsComplete)) {
+      if (board[i].every((row) => row < 0)) {
         board.splice(i,1); // remove complete row from board
         board.unshift([-1,0,0,0,0,0,0,0,0,0,0,-1]); // add new row to board start
         this.setState({
           board,
         });
-        this.checkForCompleteRow();
+        multiplier+=1;
+        didFindWinningRow = true;
       }
+    }
+
+    if (didFindWinningRow) {
+      this.setState({
+        score: score + (100 * multiplier),
+      })
     }
   }
 
@@ -339,7 +344,7 @@ export default class Tetris extends React.Component {
   }
 
   render() {
-    const { board, score } = this.state;
+    const { board, score, gameStatus } = this.state;
 
     return (
       <div className="boardWrapper">
@@ -373,6 +378,7 @@ export default class Tetris extends React.Component {
               ))
             }
           </div>
+          <p className="gameStatus">{gameStatus}</p>
         </div>
       </div>
     );
