@@ -42,7 +42,7 @@ export default class Tetris extends React.Component {
       tetrominoPosC: 4,
       interval: 1000,
       level: 1,
-      score: 0,
+      score: '0000000',
       gameStatus: '',
     }
   }
@@ -141,11 +141,19 @@ export default class Tetris extends React.Component {
     }
 
     if (didFindWinningRow) {
+      let strScore = parseInt(score);
       this.setState({
-        score: score + (100 * multiplier) * multiplier,
+        score: this.convertScore(strScore, multiplier),
         board,
       })
     }
+  }
+
+  convertScore = (str, m) => {
+    let s = parseInt(str);
+    let pad = '0000000';
+    s = (s + (100 * m) * m).toString();
+    return (pad.concat(s)).substr(s.length);
   }
 
   /*
@@ -338,7 +346,7 @@ export default class Tetris extends React.Component {
   }
 
   render() {
-    const { board, score, gameStatus } = this.state;
+    const { board, score, gameStatus, level } = this.state;
 
     return (
       <div className="boardWrapper">
@@ -354,10 +362,13 @@ export default class Tetris extends React.Component {
               </div>
             )
           }
+          <p className="gameStatus">{gameStatus}</p>
         </div>
         <div className="stats">
           <p className="statLabel">Score</p>
           <p className="score">{score}</p>
+          <p className="statLabel">Level</p>
+          <p className="score">{level}</p>
           <p className="statLabel">Next</p>
           <div className="board">
             {
@@ -372,7 +383,7 @@ export default class Tetris extends React.Component {
               ))
             }
           </div>
-          <p className="gameStatus">{gameStatus}</p>
+
         </div>
       </div>
     );

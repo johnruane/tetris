@@ -38,6 +38,8 @@ code {
 
 .gameStatus {
   font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .cell {
@@ -92,5 +94,4 @@ code {
 .board {
   grid-template-rows: auto;
   grid-row-gap: 1px;
-  margin-bottom: 15px;
 }
