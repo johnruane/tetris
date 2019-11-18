@@ -9,7 +9,6 @@ export default class Tetris extends React.Component {
     super(props);
 
     const tetromino = this.getRandomTetromino();
-    const nextTetromino = this.getRandomTetromino();
 
     this.state = {
       board: [
@@ -37,12 +36,11 @@ export default class Tetris extends React.Component {
       ],
       activeTetromino: tetromino.matrix,
       activeTetrominoValue: tetromino.value,
-      nextTetromino: nextTetromino,
+      nextTetromino: this.getRandomTetromino(),
       tetrominoPosR: 0,
       tetrominoPosC: 4,
-      interval: null,
       intervalTime: 1000,
-      level: 1,
+      level: 1, 
       levelCounter: 0,
       score: '0000000',
       gameStatus: '',
@@ -51,12 +49,12 @@ export default class Tetris extends React.Component {
 
   componentDidMount() {
     this.setNewTetromino();
-    window.addEventListener('keydown', this.keyPress);
     this.setInterval(this.state.intervalTime);
+    window.addEventListener('keydown', this.keyPress);
   }
 
   /*
-    bad method for deep copy of board array
+  * bad method for deep copy of board array
   */
   cloneArray = (array) => {
     const strArray = JSON.stringify(array);
@@ -104,7 +102,10 @@ export default class Tetris extends React.Component {
 
   setInterval = (intervalTime) => {
     window.clearInterval(this.interval);
-    this.interval = window.setInterval(() => this.runCycle(), intervalTime);
+    this.interval = window.setInterval(this.runCycle, intervalTime);
+    this.setState({
+      intervalTime: intervalTime,
+    })
   }
 
   /*
@@ -127,15 +128,12 @@ export default class Tetris extends React.Component {
   }
 
   checkLevel = () => {
-    const { level, levelCounter, interval } = this.state;
-    if (levelCounter > 1 && levelCounter % 5 === 0) {
+    const { level, intervalTime } = this.state;
       this.setState({
         level: level + 1,
-        interval: interval-100,
       });
-      window.clearInterval(this.state.interval);
-      this.setInterval(interval);
-    }
+      window.clearInterval(this.interval);
+      this.setInterval(intervalTime*0.9);
   }
 
    /*
@@ -370,7 +368,8 @@ export default class Tetris extends React.Component {
 
     return (
       <div className="boardWrapper">
-        <div className="board">
+        <p className="gameTitle">TETЯIS</p>
+        <div className="board mainBoard">
           {
             board.map((boardRow, i) => 
               <div key={`row-${i}`} className="row">
