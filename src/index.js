@@ -40,8 +40,10 @@ export default class Tetris extends React.Component {
       nextTetromino: nextTetromino,
       tetrominoPosR: 0,
       tetrominoPosC: 4,
-      interval: 1000,
+      interval: null,
+      intervalTime: 1000,
       level: 1,
+      levelCounter: 0,
       score: '0000000',
       gameStatus: '',
     }
@@ -50,7 +52,7 @@ export default class Tetris extends React.Component {
   componentDidMount() {
     this.setNewTetromino();
     window.addEventListener('keydown', this.keyPress);
-    this.gameSpeed = window.setInterval(() => this.runCycle(), this.state.interval);
+    this.setInterval(this.state.intervalTime);
   }
 
   /*
@@ -89,7 +91,7 @@ export default class Tetris extends React.Component {
         board: mBoard,
         gameStatus: 'Game Over',
       })
-      clearInterval(this.gameSpeed);
+      window.clearInterval(this.interval);
       return false;
     }
     
@@ -100,12 +102,16 @@ export default class Tetris extends React.Component {
     })
   }
 
+  setInterval = (intervalTime) => {
+    window.clearInterval(this.interval);
+    this.interval = window.setInterval(() => this.runCycle(), intervalTime);
+  }
+
   /*
     methods to run every interval. moveTetromino() will move the piece down during
     this test
   */
   runCycle = () => {
-    console.log('keydown');
     if (this.moveTetromino('ArrowDown') === false) {
       const { nextTetromino } = this.state;
       this.setState({
@@ -117,6 +123,18 @@ export default class Tetris extends React.Component {
       this.freezeTetromino();
       this.checkForCompleteRow();
       this.setNewTetromino();
+    }
+  }
+
+  checkLevel = () => {
+    const { level, levelCounter, interval } = this.state;
+    if (levelCounter > 1 && levelCounter % 5 === 0) {
+      this.setState({
+        level: level + 1,
+        interval: interval-100,
+      });
+      window.clearInterval(this.state.interval);
+      this.setInterval(interval);
     }
   }
 
@@ -145,7 +163,9 @@ export default class Tetris extends React.Component {
       this.setState({
         score: this.convertScore(strScore, multiplier),
         board,
-      })
+        levelCounter: this.state.levelCounter+1,
+      });
+      this.checkLevel();
     }
   }
 
