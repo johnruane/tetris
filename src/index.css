@@ -15,7 +15,6 @@ body {
 .boardWrapper {
   display: grid;
   justify-content: center;
-  margin-top: 40px;
   grid-template-columns: auto 100px;
   grid-column-gap: 20px;
 }
@@ -61,31 +60,31 @@ body {
 
 [data-value="3"],
 [data-value="-3"] {
-  background: red;
+  background: #FFFF01;
 }
 [data-value="4"],
 [data-value="-4"] {
-  background: blue;
+  background: #00FF01;
 }
 [data-value="5"],
 [data-value="-5"] {
-  background: green;
+  background: #FE0000;
 }
 [data-value="6"],
 [data-value="-6"] {
-  background: yellow;
+  background: #AA00FF;
 }
 [data-value="7"],
 [data-value="-7"] {
-  background: lightblue;
+  background: #FFA600;
 }
 [data-value="8"],
 [data-value="-8"] {
-  background: orange;
+  background: #0000FE;
 }
 [data-value="9"],
 [data-value="-9"] {
-  background: purple;
+  background: #01FFFE;
 }
 
 [data-value="-1"],

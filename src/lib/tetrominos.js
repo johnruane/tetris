@@ -7,8 +7,5 @@ const pieces = [
     {value: 8, matrix: [[8,8,0],[8,8,0],[0,0,0]]},
     {value: 9, matrix: [[0,9,0,0],[0,9,0,0],[0,9,0,0],[0,9,0,0]]}
  ]
-// const pieces = [
-//   {value: 3, matrix: [[3,3,0],[3,3,0],[0,0,0]]}
-// ]
 
  export default pieces;
