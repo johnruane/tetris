@@ -1,5 +1,6 @@
 :root {
   --font-family: "Courier New", sans-serif;
+  --title-font-size-sm: 20px;
   --title-font-size: 30px;
   --cell-background-color: #FFFFFF;
 }
@@ -51,11 +52,26 @@ body {
   text-align: center;
 }
 
+
+@media (max-width: 767px) {
+  .gameTitle {
+    font-size: var(--title-font-size-sm);
+    grid-column: 1 / span 2;
+  }
+}
+
 .cell {
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   background: var(--cell-background-color);
   border: 1px solid #000000;
+}
+
+@media (min-width: 768px) {
+  .cell {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 [data-value="3"],
