@@ -4,6 +4,7 @@ import rotate from './lib/rotate.js';
 import { convertScore, cloneArray } from './lib/helpers.js';
 import tetrominos from './lib/tetrominos.js';
 import Board from './components/Board.js'
+import Button from './components/Button.js'
 import './index.css';
 
 export default class Tetris extends React.Component {
@@ -380,6 +381,13 @@ export default class Tetris extends React.Component {
           <p className="statLabel">Next</p>
           <Board board={this.state.nextTetromino.matrix}/>
         </div>
+        {/* <div className="controls">
+          <Button classname={"directionalButton left"} />
+          <Button classname={"directionalButton right"} />
+          <Button classname={"directionalButton down"} />
+          <Button classname={"rotationalButton rotateAntiClockwise"} />
+          <Button classname={"rotationalButton rotateClockwise"} />
+        </div> */}
       </div>
     );
   }

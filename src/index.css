@@ -3,6 +3,10 @@
   --title-font-size-sm: 20px;
   --title-font-size: 30px;
   --cell-background-color: #FFFFFF;
+  --button-height: 48px;
+  --button-width: 48px;
+  --background-dimention: 48px;
+  --button-font-size: 20px;
 }
 
 body {
@@ -17,7 +21,9 @@ body {
   display: grid;
   justify-content: center;
   grid-template-columns: auto 100px;
+  grid-template-rows: 60px auto auto;
   grid-column-gap: 20px;
+  height: 100vh;
 }
 
 .stats {
@@ -72,6 +78,79 @@ body {
     width: 20px;
     height: 20px;
   }
+}
+
+.controls {
+  display: grid;
+  grid-column-gap: 20px;
+  grid-row: 3;
+  grid-column: 1 /span 2;
+  grid-template-columns: auto 100px;
+  grid-template-rows: 2fr;
+  align-self: center;
+}
+
+.button {
+  background-size: var(--background-dimention);
+  border: none;
+}
+
+.directionalButton {
+  width: var(--button-width);
+  height: var(--button-height);
+}
+
+.directionalButton.left {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M12 24c6.627 0 12-5.373 12-12s-5.373-12-12-12-12 5.373-12 12 5.373 12 12 12zm-1-17v4h8v2h-8v4l-6-5 6-5z'/%3e%3c/svg%3e");
+}
+
+.directionalButton.right {
+  justify-self: end;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 17v-4h-8v-2h8v-4l6 5-6 5z'/%3e%3c/svg%3e");
+}
+
+.directionalButton.left,
+.directionalButton.right {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.directionalButton.down {
+  grid-row: 2;
+  justify-self: center;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M24 12c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zm-17 1h4v-8h2v8h4l-5 6-5-6z'/%3e%3c/svg%3e");
+}
+
+.rotationalButton {
+  grid-column: 2;
+  border-radius: 50%;
+  width: var(--button-width);
+  height: var(--button-height);
+  display: flex;
+  justify-content: center;
+  font-size: var(--button-font-size);
+  border: 2px solid #000000;
+  background: #FFFFFF;
+}
+
+.rotateAntiClockwise {
+  justify-self: end;
+}
+
+.rotateAntiClockwise::after {
+  content: "B";
+  display: block;
+  align-self: center;
+}
+
+.rotateClockwise {
+  justify-self: start;
+}
+
+.rotateClockwise::after {
+  content: "A";
+  display: block; 
+  align-self: center;
 }
 
 [data-value="3"],
