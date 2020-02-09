@@ -22,7 +22,7 @@ body {
   display: grid;
   justify-content: center;
   grid-template-columns: auto 100px;
-  grid-template-rows: 60px auto auto;
+  grid-template-rows: 60px auto min-content;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
   height: 100vh;
@@ -120,6 +120,7 @@ body {
   border-radius: 50%;
   background-size: 30px;
   background-repeat: no-repeat;
+  background-color: #FFFFFF;
 }
 
 .directionalButton.left {
