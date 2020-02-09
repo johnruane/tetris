@@ -367,28 +367,34 @@ export default class Tetris extends React.Component {
     const { board, score, gameStatus, level } = this.state;
 
     return (
-      <div className="boardWrapper">
-        <p className="gameTitle">TETЯIS</p>
-        <div className="board mainBoard">
-          <Board board={board} />
+      <>
+        <div className="boardWrapper">
+          <p className="gameTitle">TETЯIS</p>
+          <div className="board mainBoard">
+            <Board board={board} />
+          </div>
+          <div className="stats">
+            <p className="statLabel">Score</p>
+            <p className="score">{score}</p>
+            <p className="statLabel">Level</p>
+            <p className="score">{level}</p>
+            <p className="statLabel">Next</p>
+            <Board board={this.state.nextTetromino.matrix}/>
+            <p className="gameStatus">{gameStatus}</p>
+          </div>
+          <div className="controls">
+          <div className="controls-left">
+            <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
+            <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />
+          </div>
+          <div className="controls-right">
+            <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
+            <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />
+          </div>
         </div>
-        <div className="stats">
-          <p className="statLabel">Score</p>
-          <p className="score">{score}</p>
-          <p className="statLabel">Level</p>
-          <p className="score">{level}</p>
-          <p className="statLabel">Next</p>
-          <Board board={this.state.nextTetromino.matrix}/>
-          <p className="gameStatus">{gameStatus}</p>
         </div>
-        <div className="controls">
-          <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
-          <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />
-          <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
-          <Button classname={"rotationalButton rotateAntiClockwise"}  onClick={this.rotateTetromino} />
-          <Button classname={"rotationalButton rotateClockwise"}  onClick={this.buttonClick} />
-        </div>
-      </div>
+
+      </>
     );
   }
 }
