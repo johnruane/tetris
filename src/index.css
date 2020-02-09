@@ -54,8 +54,6 @@ body {
   text-transform: uppercase;
   color: #FFFFFF;
   margin: 0;
-  /* grid-row: 3;
-  grid-column: 1; */
 }
 
 .gameTitle {
@@ -216,11 +214,10 @@ body {
   border-bottom: none;
 }
 
-.board {
-  /* grid-template-rows: auto;
-  grid-row-gap: 1px; */
-}
-
 .mainBoard {
   grid-row: 2;
+}
+
+button {
+  touch-action: manipulation;
 }
