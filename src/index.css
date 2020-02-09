@@ -22,7 +22,7 @@ body {
   display: grid;
   justify-content: center;
   grid-template-columns: auto 100px;
-  grid-template-rows: 60px auto 1fr;
+  grid-template-rows: 60px auto auto;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
   height: 100vh;
