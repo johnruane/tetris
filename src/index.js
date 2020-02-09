@@ -371,7 +371,6 @@ export default class Tetris extends React.Component {
         <p className="gameTitle">TETЯIS</p>
         <div className="board mainBoard">
           <Board board={board} />
-          <p className="gameStatus">{gameStatus}</p>
         </div>
         <div className="stats">
           <p className="statLabel">Score</p>
@@ -380,14 +379,15 @@ export default class Tetris extends React.Component {
           <p className="score">{level}</p>
           <p className="statLabel">Next</p>
           <Board board={this.state.nextTetromino.matrix}/>
+          <p className="gameStatus">{gameStatus}</p>
         </div>
-        {/* <div className="controls">
-          <Button classname={"directionalButton left"} />
-          <Button classname={"directionalButton right"} />
-          <Button classname={"directionalButton down"} />
-          <Button classname={"rotationalButton rotateAntiClockwise"} />
-          <Button classname={"rotationalButton rotateClockwise"} />
-        </div> */}
+        <div className="controls">
+          <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
+          <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />
+          <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
+          <Button classname={"rotationalButton rotateAntiClockwise"}  onClick={this.rotateTetromino} />
+          <Button classname={"rotationalButton rotateClockwise"}  onClick={this.buttonClick} />
+        </div>
       </div>
     );
   }

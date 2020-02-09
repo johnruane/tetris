@@ -15,14 +15,16 @@ body {
   font-weight: bold;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #3F3F3F;
 }
 
 .boardWrapper {
   display: grid;
   justify-content: center;
   grid-template-columns: auto 100px;
-  grid-template-rows: 60px auto auto;
+  grid-template-rows: 60px auto 1fr;
   grid-column-gap: 20px;
+  grid-row-gap: 24px;
   height: 100vh;
 }
 
@@ -38,16 +40,22 @@ body {
   margin: 0;
   font-weight: bold;
   text-transform: uppercase;
+  color: #FFFFFF;
 }
 
 .score {
   margin: 0 0 12px;
+  color: #FFFFFF;
 }
 
 .gameStatus {
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
+  color: #FFFFFF;
+  margin: 0;
+  /* grid-row: 3;
+  grid-column: 1; */
 }
 
 .gameTitle {
@@ -56,6 +64,9 @@ body {
   text-transform: uppercase;
   font-size: var(--title-font-size);
   text-align: center;
+  color: #FFFFFF;
+  margin: 0;
+  align-self: end;
 }
 
 
@@ -87,7 +98,14 @@ body {
   grid-column: 1 /span 2;
   grid-template-columns: auto 100px;
   grid-template-rows: 2fr;
-  align-self: center;
+  grid-row-gap: 6px;
+  align-self: start;
+}
+
+@media (min-width: 768px) {
+  .controls {
+    display: none;
+  }
 }
 
 .button {
@@ -98,6 +116,10 @@ body {
 .directionalButton {
   width: var(--button-width);
   height: var(--button-height);
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-position: center center;
 }
 
 .directionalButton.left {
@@ -130,7 +152,6 @@ body {
   justify-content: center;
   font-size: var(--button-font-size);
   border: 2px solid #000000;
-  background: #FFFFFF;
 }
 
 .rotateAntiClockwise {
@@ -196,8 +217,8 @@ body {
 }
 
 .board {
-  grid-template-rows: auto;
-  grid-row-gap: 1px;
+  /* grid-template-rows: auto;
+  grid-row-gap: 1px; */
 }
 
 .mainBoard {
