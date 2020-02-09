@@ -2,9 +2,9 @@ import React from 'react';
 
 export default class Board extends React.Component {
   render() {
-    const { board, extraClass } = this.props;
+    const { board } = this.props;
     return (
-      <div className={`board ${extraClass}`}>
+      <div className={`board`}>
         {
           board.map((boardRow, i) => 
             <div key={`row-${i}`} className="row">
