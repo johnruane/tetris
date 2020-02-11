@@ -97,8 +97,9 @@ export default class Tetris extends React.Component {
       tetrominoPosC: 4,
     })
   }
+
   /*
-  * clears current interval and sets new one
+  * sets new gameplay interval
   */
   setInterval = (intervalTime) => {
     window.clearInterval(this.interval);
@@ -109,11 +110,19 @@ export default class Tetris extends React.Component {
   }
 
   /*
-  * methods to run every interval. moveTetromino() will move the piece down during
-  * this test
+  * set 'zoom' down interval
+  */
+  setDownInterval = () => {
+    window.clearInterval(this.downInterval);
+    this.downInterval = window.setInterval(this.runCycle, 1);
+  }
+
+  /*
+  * moves the tetromino down. if can't move down then add new piece
   */
   runCycle = () => {
-    if (this.moveTetromino('ArrowDown') === false) { // false = can't move down
+    let canMove = this.moveTetromino('ArrowDown');
+    if (canMove === false) { // false = couldn't move down
       const { nextTetromino } = this.state;
       this.setState({
         activeTetromino: nextTetromino.matrix,
@@ -123,6 +132,7 @@ export default class Tetris extends React.Component {
       this.freezeTetromino();
       this.checkForCompleteRow();
       this.setNewTetromino();
+      window.clearInterval(this.downInterval);
     }
   }
 
@@ -170,7 +180,7 @@ export default class Tetris extends React.Component {
   }
 
   /*
-  * keypress event decision
+  * keypress events
   */
   keyPress = (event) => {
     const key = event.code;
@@ -180,8 +190,12 @@ export default class Tetris extends React.Component {
         case 'Space':
           this.rotateTetromino();
           break;
+        case 'ArrowDown':
+          this.setDownInterval();
+          break;
         default:
           this.moveTetromino(key);
+          break;
       }
     }
   }
@@ -367,29 +381,27 @@ export default class Tetris extends React.Component {
     const { board, score, gameStatus, level } = this.state;
 
     return (
-      <>
-        <div className="boardWrapper">
-          <p className="gameTitle">TETRIS</p>
-          <div className="board mainBoard">
-            <Board board={board} />
-          </div>
-          <div className="stats">
-            <p className="statLabel">Score</p>
-            <p className="score">{score}</p>
-            <p className="statLabel">Level</p>
-            <p className="score">{level}</p>
-            <p className="statLabel">Next</p>
-            <Board board={this.state.nextTetromino.matrix}/>
-            <p className="gameStatus">{gameStatus}</p>
-          </div>
-          <div className="controls">
-            <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
-            <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />            
-            <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
-            <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />            
-          </div>
+      <div className="boardWrapper">
+        <p className="gameTitle">TETRIS</p>
+        <div className="board mainBoard">
+          <Board board={board} />
         </div>
-      </>
+        <div className="stats">
+          <p className="statLabel">Score</p>
+          <p className="score">{score}</p>
+          <p className="statLabel">Level</p>
+          <p className="score">{level}</p>
+          <p className="statLabel">Next</p>
+          <Board board={this.state.nextTetromino.matrix}/>
+          <p className="gameStatus">{gameStatus}</p>
+        </div>
+        <div className="controls">
+          <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
+          <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />            
+          <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
+          <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />            
+        </div>
+      </div>
     );
   }
 }
