@@ -22,15 +22,11 @@ body {
   display: grid;
   justify-content: center;
   grid-template-columns: auto 100px;
-  grid-template-rows: 60px min-content min-content;
+  grid-template-rows: 60px min-content;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
-  height: 100vh;
 }
 
-.board {
-  margin-bottom: 12px;
-}
 .stats {
   display: grid;
   align-content: start;
@@ -56,7 +52,7 @@ body {
   text-align: center;
   text-transform: uppercase;
   color: #FFFFFF;
-  margin: 0;  
+  margin: 12px 0 0;  
 }
 
 .gameTitle {
@@ -79,8 +75,8 @@ body {
 }
 
 .cell {
-  width: 10px;
-  height: 10px;
+  width: 17px;
+  height: 17px;
   background: var(--cell-background-color);
   border: 1px solid #000000;
 }
@@ -101,9 +97,12 @@ body {
 .controls {
   grid-column: 1 / span 2;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: flex-end;
-  margin-bottom: 12px;
+  position: fixed;
+  margin: 0 auto 24px;
+  bottom: 0;
+  width: 100%;
 }
 
 .button {

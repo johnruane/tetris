@@ -383,17 +383,12 @@ export default class Tetris extends React.Component {
             <p className="gameStatus">{gameStatus}</p>
           </div>
           <div className="controls">
-          <div className="controls-left">
             <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
-            <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />
-          </div>
-          <div className="controls-right">
             <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
             <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />
+            <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />            
           </div>
         </div>
-        </div>
-
       </>
     );
   }
