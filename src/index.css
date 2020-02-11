@@ -2,7 +2,7 @@
   --font-family: "Courier New", sans-serif;
   --title-font-size-sm: 20px;
   --title-font-size: 30px;
-  --cell-background-color: #FFFFFF;
+  --cell-background-color: #F7F7F7;
   --button-height: 48px;
   --button-width: 48px;
   --background-dimention: 48px;
@@ -75,8 +75,8 @@ body {
 }
 
 .cell {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
   background: var(--cell-background-color);
   border: 1px solid #000000;
 }
