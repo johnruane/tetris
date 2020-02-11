@@ -1,7 +1,8 @@
 :root {
-  --font-family: "Courier New", sans-serif;
-  --title-font-size-sm: 20px;
-  --title-font-size: 30px;
+  --font-family: 'VT323', monospace;
+  --title-font-size-sm: 35px;
+  --title-font-size: 40px;
+  --font-size-sm: 25px;
   --cell-background-color: #F7F7F7;
   --button-height: 48px;
   --button-width: 48px;
@@ -12,7 +13,6 @@
 body {
   margin: 0;
   font-family: var(--font-family);
-  font-weight: bold;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #3F3F3F;
@@ -21,7 +21,7 @@ body {
 .boardWrapper {
   display: grid;
   justify-content: center;
-  grid-template-columns: auto 100px;
+  grid-template-columns: auto 70px;
   grid-template-rows: 60px min-content;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
@@ -37,7 +37,7 @@ body {
 
 .statLabel {
   margin: 0;
-  font-weight: bold;
+  font-size: var(--font-size-sm);
   text-transform: uppercase;
   color: #FFFFFF;
 }
@@ -45,18 +45,19 @@ body {
 .score {
   margin: 0 0 12px;
   color: #FFFFFF;
+  font-size: var(--font-size-sm);
 }
 
 .gameStatus {
-  font-weight: bold;
+  font-size: var(--font-size-sm);
   text-align: center;
   text-transform: uppercase;
   color: #FFFFFF;
-  margin: 12px 0 0;  
+  margin: 24px 0 0;  
 }
 
 .gameTitle {
-  grid-column: 1;
+  grid-column: 1 / span 2;
   grid-row: 1;
   text-transform: uppercase;
   font-size: var(--title-font-size);
@@ -75,8 +76,8 @@ body {
 }
 
 .cell {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   background: var(--cell-background-color);
   border: 1px solid #000000;
 }
@@ -85,12 +86,6 @@ body {
   .cell {
     width: 20px;
     height: 20px;
-  }
-}
-
-@media (min-width: 768px) {
-  .controls {
-    display: none;
   }
 }
 
@@ -103,6 +98,12 @@ body {
   margin: 0 auto 24px;
   bottom: 0;
   width: 100%;
+}
+
+@media (min-width: 768px) {
+  .controls {
+    display: none;
+  }
 }
 
 .button {

@@ -369,7 +369,7 @@ export default class Tetris extends React.Component {
     return (
       <>
         <div className="boardWrapper">
-          <p className="gameTitle">TETЯIS</p>
+          <p className="gameTitle">TETRIS</p>
           <div className="board mainBoard">
             <Board board={board} />
           </div>
@@ -384,8 +384,8 @@ export default class Tetris extends React.Component {
           </div>
           <div className="controls">
             <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
+            <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />            
             <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
-            <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />
             <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />            
           </div>
         </div>
