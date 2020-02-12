@@ -118,7 +118,7 @@ export default class Tetris extends React.Component {
   */
   setDownInterval = () => {
     window.clearInterval(this.downInterval);
-    this.downInterval = window.setInterval(this.runCycle, 10);
+    this.downInterval = window.setInterval(this.runCycle, 20);
   }
 
   /*
