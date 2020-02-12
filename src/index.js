@@ -48,6 +48,9 @@ export default class Tetris extends React.Component {
       score: '0000000',
       gameStatus: '',
     }
+
+    this.rLength = this.state.board.length-2;
+    this.cLength = this.state.board[0].length-1;
   }
 
   componentDidMount() {
@@ -156,6 +159,7 @@ export default class Tetris extends React.Component {
   checkForCompleteRow = () => {
     let { board, score } = this.state;
     const rLength = board.length-2; // -2 to skip the floor row
+    console.log(board.length);
     let multiplier = 0;
     let didFindWinningRow = false;
     for(let i=rLength;i>=0;i--) {
@@ -216,10 +220,8 @@ export default class Tetris extends React.Component {
     );
       
     let canRotate = true;
-    const rLength = mBoard.length-1;
-    const cLength = mBoard[0].length-1;
-    for(let i=0;i<=rLength;i++) {
-      for(let j=0;j<=cLength;j++) {
+    for(let i=0;i<=this.rLength;i++) {
+      for(let j=0;j<=this.cLength;j++) {
         if (mBoard[i][j] > 0) {
           if (this.state.board[i][j] < 0) {
             canRotate = false;
@@ -240,10 +242,8 @@ export default class Tetris extends React.Component {
   * reverse loop board and set any positive cells to 0
   */
   clearBoard = (board) => {
-    const rLength = board.length-1;
-    const cLength = board[0].length-1;
-    for(let i=rLength;i>=0;i--) {
-      for(let j=0;j<=cLength;j++) {
+    for(let i=this.rLength;i>=0;i--) {
+      for(let j=0;j<=this.cLength;j++) {
         if (board[i][j] > 0) {
           board[i][j] = 0;
         }
@@ -273,91 +273,75 @@ export default class Tetris extends React.Component {
   */
   moveTetromino = (direction) => {
     let board = this.state.board;
-    const rLength = board.length-1;
-    const cLength = board[0].length-1;
+    let moveBoard = cloneArray(board);
     const r = this.state.tetrominoPosR;
     const c = this.state.tetrominoPosC;
-    let canMove = true;
+
     switch(direction) {
       case 'ArrowLeft':
-        for(let i=rLength;i>=0;i--) {
-          for(let j=0;j<=cLength;j++) {
-            if (this.state.board[i][j]>0) {
-              if (this.state.board[i][j-1]<0) {
-                canMove = false;
-              }
-            }
-          }
-        }
-        if (canMove) {
-          for(let i=rLength;i>=0;i--) {
-            for(let j=0;j<=cLength;j++) {
-              if (board[i][j]>0) {
-                  board[i][j] = 0;
-                  board[i][j-1] = this.state.activeTetrominoValue;
-                  this.setState({
-                    tetrominoPosC: c-1,
-                  });
-              }
+        for(let i=this.rLength;i>=0;i--) {
+          for(let j=0;j<=this.cLength;j++) {
+            if (moveBoard[i][j]>0) {
+              moveBoard[i][j] = 0;
+              moveBoard[i][j-1] = this.state.activeTetrominoValue;
+              this.setState({
+                tetrominoPosC: c-1,
+              });
             }
           }
         }
       break;
       case 'ArrowRight':
-        for(let i=rLength;i>=0;i--) {
-          for(let j=cLength;j>=0;j--) {
-            if (this.state.board[i][j]>0) {
-              if (this.state.board[i][j+1]<0) {
-                canMove = false;
-              }
-            }
-          }
-        }
-        if (canMove) {
-          for(let i=rLength;i>=0;i--) {
-            for(let j=cLength;j>=0;j--) {
-              if (board[i][j]>0) {
-                board[i][j] = 0;
-                board[i][j+1] = this.state.activeTetrominoValue;
-                this.setState({
-                  tetrominoPosC: c+1,
-                });
-              }
+        for(let i=this.rLength;i>=0;i--) {
+          for(let j=this.cLength;j>=0;j--) {
+            if (moveBoard[i][j]>0) {
+              moveBoard[i][j] = 0;
+              moveBoard[i][j+1] = this.state.activeTetrominoValue;
+              this.setState({
+                tetrominoPosC: c+1,
+              });
             }
           }
         }
       break;
       case 'ArrowDown':
-        for(let i=rLength;i>=0;i--) {
-          for(let j=0;j<=cLength;j++) {
-            if (this.state.board[i][j]>0) {
-              if (this.state.board[i+1][j]<0) {
-                canMove = false;
-              }
+        for(let i=this.rLength;i>=0;i--) {
+          for(let j=0;j<=this.cLength;j++) {
+            if (moveBoard[i][j]>0) {
+              moveBoard[i][j] = 0;
+              moveBoard[i+1][j] = this.state.activeTetrominoValue;
+              this.setState({
+                tetrominoPosR: r+1,
+              });
             }
           }
-        }
-        if (canMove) {
-          for(let i=rLength;i>=0;i--) {
-            for(let j=0;j<=11;j++) {
-              if (board[i][j]>0) {
-                board[i][j] = 0;
-                board[i+1][j] = this.state.activeTetrominoValue;
-                this.setState({
-                  tetrominoPosR: r+1,
-                });
-              }
-            }
-          }
-        } else {
-          return false;
         }
       break;
-      default: // do nothing
+      default:
+    }
+    const canMove = this.compareBoards(board, moveBoard);
+    if (canMove) {
+      this.setState({
+        board: moveBoard,
+      })
+    }
+    return canMove; 
+  }
+
+  compareBoards = (currentBoard, newBoard) => {
+    let canMove = true;
+    const rLength = currentBoard.length-1;
+    const cLength = currentBoard[0].length-1;
+    for(let i=0;i<=rLength;i++) {
+      for(let j=0;j<=cLength;j++) {
+        if (newBoard[i][j]>0) {
+          if(currentBoard[i][j]<0) {
+            canMove = false;
+          }
+        }
       }
-    this.setState({
-      board,
-    })
+    }
+    return canMove;
   }
 
   /*
@@ -366,10 +350,8 @@ export default class Tetris extends React.Component {
   */
   freezeTetromino = () => {
     let board = this.state.board;
-    const rLength = board.length-1;
-    const cLength = board[0].length-1;
-    for(let i=rLength;i>=0;i--) {
-      for(let j=0;j<=cLength;j++) {
+    for(let i=this.rLength;i>=0;i--) {
+      for(let j=0;j<=this.cLength;j++) {
         if (this.state.board[i][j]>0) {
           board[i][j] = -Math.abs(board[i][j]); // negate pieces value to freeze
         }

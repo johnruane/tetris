@@ -21,7 +21,7 @@ body {
 .boardWrapper {
   display: grid;
   justify-content: center;
-  grid-template-columns: auto 70px;
+  grid-template-columns: auto 100px;
   grid-template-rows: 60px min-content;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
