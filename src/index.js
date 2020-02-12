@@ -118,7 +118,7 @@ export default class Tetris extends React.Component {
   */
   setDownInterval = () => {
     window.clearInterval(this.downInterval);
-    this.downInterval = window.setInterval(this.runCycle, 1);
+    this.downInterval = window.setInterval(this.runCycle, 10);
   }
 
   /*
@@ -319,7 +319,6 @@ export default class Tetris extends React.Component {
             }
           }
         }
-        this.zoomed = true;
       break;
       default:
     }
@@ -388,7 +387,7 @@ export default class Tetris extends React.Component {
         <div className="controls">
           <Button classname={"directionalButton left"} onClick={() => this.moveTetromino('ArrowLeft')} />
           <Button classname={"directionalButton rotate"}  onClick={this.rotateTetromino} />            
-          <Button classname={"directionalButton down"}  onClick={() => this.moveTetromino('ArrowDown')} />
+          <Button classname={"directionalButton down"}  onClick={() => this.setDownInterval()} />
           <Button classname={"directionalButton right"}  onClick={() => this.moveTetromino('ArrowRight')} />            
         </div>
       </div>
