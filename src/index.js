@@ -11,7 +11,7 @@ export default class Tetris extends React.Component {
   constructor(props) {
     super(props);
 
-    const tetromino = this.getRandomTetromino();
+    this.tetromino = this.getRandomTetromino();
 
     this.state = {
       board: [
@@ -37,9 +37,10 @@ export default class Tetris extends React.Component {
         [-1,0,0,0,0,0,0,0,0,0,0,-1],
         [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]
       ],
-      activeTetromino: tetromino.matrix,
-      activeTetrominoValue: tetromino.value,
+      activeTetromino: this.tetromino.matrix,
+      activeTetrominoValue: this.tetromino.value,
       nextTetromino: this.getRandomTetromino(),
+      // monitor position of moving tetromino for rotational purposes
       tetrominoPosR: 0,
       tetrominoPosC: 4,
       intervalTime: 1000,
@@ -49,8 +50,8 @@ export default class Tetris extends React.Component {
       gameStatus: '',
     }
 
-    this.rLength = this.state.board.length-2;
-    this.cLength = this.state.board[0].length-1;
+    this.row = this.state.board.length-2;
+    this.column = this.state.board[0].length-1;
   }
 
   componentDidMount() {
@@ -158,11 +159,10 @@ export default class Tetris extends React.Component {
   */
   checkForCompleteRow = () => {
     let { board, score } = this.state;
-    const rLength = board.length-2; // -2 to skip the floor row
-    console.log(board.length);
+    const row = board.length-2; // -2 to skip the floor row
     let multiplier = 0;
     let didFindWinningRow = false;
-    for(let i=rLength;i>=0;i--) {
+    for(let i=row;i>=0;i--) {
       if (board[i].every((row) => row < 0)) {
         board.splice(i,1); // remove complete row from board
         board.unshift([-1,0,0,0,0,0,0,0,0,0,0,-1]); // add new row to board start
@@ -220,8 +220,8 @@ export default class Tetris extends React.Component {
     );
       
     let canRotate = true;
-    for(let i=0;i<=this.rLength;i++) {
-      for(let j=0;j<=this.cLength;j++) {
+    for(let i=0;i<=this.row;i++) {
+      for(let j=0;j<=this.column;j++) {
         if (mBoard[i][j] > 0) {
           if (this.state.board[i][j] < 0) {
             canRotate = false;
@@ -242,8 +242,8 @@ export default class Tetris extends React.Component {
   * reverse loop board and set any positive cells to 0
   */
   clearBoard = (board) => {
-    for(let i=this.rLength;i>=0;i--) {
-      for(let j=0;j<=this.cLength;j++) {
+    for(let i=this.row;i>=0;i--) {
+      for(let j=0;j<=this.column;j++) {
         if (board[i][j] > 0) {
           board[i][j] = 0;
         }
@@ -279,11 +279,12 @@ export default class Tetris extends React.Component {
 
     switch(direction) {
       case 'ArrowLeft':
-        for(let i=this.rLength;i>=0;i--) {
-          for(let j=0;j<=this.cLength;j++) {
+        for(let i=this.row;i>=0;i--) {
+          for(let j=0;j<=this.column;j++) {
             if (moveBoard[i][j]>0) {
               moveBoard[i][j] = 0;
               moveBoard[i][j-1] = this.state.activeTetrominoValue;
+              // set tracking of moving tetromino
               this.setState({
                 tetrominoPosC: c-1,
               });
@@ -292,11 +293,12 @@ export default class Tetris extends React.Component {
         }
       break;
       case 'ArrowRight':
-        for(let i=this.rLength;i>=0;i--) {
-          for(let j=this.cLength;j>=0;j--) {
+        for(let i=this.row;i>=0;i--) {
+          for(let j=this.column;j>=0;j--) {
             if (moveBoard[i][j]>0) {
               moveBoard[i][j] = 0;
               moveBoard[i][j+1] = this.state.activeTetrominoValue;
+              // set tracking of moving tetromino
               this.setState({
                 tetrominoPosC: c+1,
               });
@@ -305,17 +307,19 @@ export default class Tetris extends React.Component {
         }
       break;
       case 'ArrowDown':
-        for(let i=this.rLength;i>=0;i--) {
-          for(let j=0;j<=this.cLength;j++) {
+        for(let i=this.row;i>=0;i--) {
+          for(let j=0;j<=this.column;j++) {
             if (moveBoard[i][j]>0) {
               moveBoard[i][j] = 0;
               moveBoard[i+1][j] = this.state.activeTetrominoValue;
+              // set tracking of moving tetromino
               this.setState({
                 tetrominoPosR: r+1,
               });
             }
           }
         }
+        this.zoomed = true;
       break;
       default:
     }
@@ -328,12 +332,16 @@ export default class Tetris extends React.Component {
     return canMove; 
   }
 
+  /*
+  * takes 2 boards and returns false if an active piece on the newBoard is on
+  * a negative piece on the currentBoard - piece can't move
+  */
   compareBoards = (currentBoard, newBoard) => {
     let canMove = true;
-    const rLength = currentBoard.length-1;
-    const cLength = currentBoard[0].length-1;
-    for(let i=0;i<=rLength;i++) {
-      for(let j=0;j<=cLength;j++) {
+    const row = currentBoard.length-1;
+    const column = currentBoard[0].length-1;
+    for(let i=0;i<=row;i++) {
+      for(let j=0;j<=column;j++) {
         if (newBoard[i][j]>0) {
           if(currentBoard[i][j]<0) {
             canMove = false;
@@ -350,8 +358,8 @@ export default class Tetris extends React.Component {
   */
   freezeTetromino = () => {
     let board = this.state.board;
-    for(let i=this.rLength;i>=0;i--) {
-      for(let j=0;j<=this.cLength;j++) {
+    for(let i=this.row;i>=0;i--) {
+      for(let j=0;j<=this.column;j++) {
         if (this.state.board[i][j]>0) {
           board[i][j] = -Math.abs(board[i][j]); // negate pieces value to freeze
         }
