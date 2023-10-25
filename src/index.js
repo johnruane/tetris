@@ -4,19 +4,14 @@ import rotate from './lib/rotate.js';
 import {
   convertScore,
   cloneArray,
-  clearBoard,
   addTetrominoToBoard,
   compareBoards,
-  cleanBoardOfActivePiece,
 } from './lib/helpers.js';
 import { gameBoard, tetrominos } from './lib/matrices.js';
 import Board from './components/Board.js';
 import Button from './components/Button.js';
 import './index.css';
 
-/*
- * randomly picks a tetromino
- */
 const getRandomTetromino = () => {
   return tetrominos[Math.floor(Math.random() * Math.floor(tetrominos.length))];
 };
@@ -26,13 +21,15 @@ export default class Tetris extends React.Component {
     super(props);
 
     this.tetromino = getRandomTetromino();
+    this.startPos = [0, 4];
+    this.numberOfRows = gameBoard.length;
 
     this.state = {
+      previousBoard: gameBoard,
       board: gameBoard,
       activeTetromino: this.tetromino.matrix,
       activeTetrominoValue: this.tetromino.value,
       nextTetromino: getRandomTetromino(),
-      // monitor position of moving tetromino for rotational purposes
       tetrominoPosR: 0,
       tetrominoPosC: 4,
       intervalTime: 1000,
@@ -41,9 +38,6 @@ export default class Tetris extends React.Component {
       score: '0000000',
       gameStatus: '',
     };
-
-    this.row = this.state.board.length - 2;
-    this.column = this.state.board[0].length - 1;
   }
 
   componentDidMount() {
@@ -53,13 +47,18 @@ export default class Tetris extends React.Component {
   }
 
   /*
-   * adds the active tetromino to board at position [0, 4]
+   * Adds the active tetromino to board at starting position [0, 4]
    */
   setNewTetromino = () => {
     const { board, activeTetromino } = this.state;
-    const mBoard = addTetrominoToBoard(cloneArray(board), activeTetromino, 0, 4);
+    const mBoard = addTetrominoToBoard(
+      cloneArray(board),
+      activeTetromino,
+      ...this.startPos
+    );
     const canAddTetromino = compareBoards(board, mBoard);
 
+    // Ends game
     if (canAddTetromino === false) {
       this.setState({
         board: mBoard,
@@ -71,13 +70,13 @@ export default class Tetris extends React.Component {
 
     this.setState({
       board: mBoard,
-      tetrominoPosR: 0,
-      tetrominoPosC: 4,
+      tetrominoPosR: this.startPos[0],
+      tetrominoPosC: this.startPos[1],
     });
   };
 
   /*
-   * sets new gameplay interval
+   * Initialises gameplay interval.
    */
   setInterval = (intervalTime) => {
     window.clearInterval(this.interval);
@@ -88,12 +87,12 @@ export default class Tetris extends React.Component {
   };
 
   /*
-   * moves the tetromino down. if can't move down then add new piece
+   * Will try move activeTetromino 'Down'. If it cannot move 'Down' that piece is set to be static
+   * and the next tetromino is added at the starting position.
    */
   runCycle = () => {
     let canMove = this.moveTetromino('ArrowDown');
     if (canMove === false) {
-      // false = couldn't move down
       const { nextTetromino } = this.state;
       this.setState({
         activeTetromino: nextTetromino.matrix,
@@ -107,7 +106,7 @@ export default class Tetris extends React.Component {
   };
 
   /*
-   * increases level score
+   * Increases level score
    */
   checkLevel = () => {
     const { level, intervalTime } = this.state;
@@ -125,7 +124,7 @@ export default class Tetris extends React.Component {
    */
   checkForCompleteRow = () => {
     let { board } = this.state;
-    const row = board.length - 2; // -2 to skip the floor row
+    const row = this.numberOfRows - 2; // -2 to skip the floor row
     let winningRowsFound = 0;
     let didFindWinningRow = false;
     for (let i = row; i >= 0; i--) {
@@ -181,10 +180,11 @@ export default class Tetris extends React.Component {
    * the current board to the temp board
    */
   rotateTetromino = () => {
-    const { board, activeTetromino, tetrominoPosR, tetrominoPosC } = this.state;
+    const { board, previousBoard, activeTetromino, tetrominoPosR, tetrominoPosC } =
+      this.state;
     const rotatedTetromino = rotate(activeTetromino);
     let mBoard = addTetrominoToBoard(
-      clearBoard(cloneArray(board), this.row, this.column),
+      cloneArray(previousBoard),
       rotatedTetromino,
       tetrominoPosR,
       tetrominoPosC
@@ -221,16 +221,15 @@ export default class Tetris extends React.Component {
     }
 
     const mBoard = addTetrominoToBoard(
-      cloneArray(gameBoard),
+      cloneArray(board),
       activeTetromino,
       ...newDirection
     );
 
     if (compareBoards(board, mBoard)) {
-      // set board state to be the cleaned board with new piece added at new position
       this.setState({
         board: addTetrominoToBoard(
-          cleanBoardOfActivePiece(board),
+          cloneArray(this.state.previousBoard),
           activeTetromino,
           newDirection[0],
           newDirection[1]
@@ -248,14 +247,15 @@ export default class Tetris extends React.Component {
    * to stop them from being moved
    */
   freezeTetromino = () => {
-    let currentBoard = cloneArray(this.state.board);
+    const { board } = this.state;
 
-    const newBoard = currentBoard.map((row) => {
+    const newBoard = cloneArray(board).map((row) => {
       return row.map((piece) => (piece > 0 ? -Math.abs(piece) : piece));
     });
 
     this.setState({
       board: newBoard,
+      previousBoard: newBoard,
     });
   };
 
@@ -263,19 +263,27 @@ export default class Tetris extends React.Component {
     const { board, score, gameStatus, level } = this.state;
 
     return (
-      <div className='boardWrapper'>
-        <p className='gameTitle'>TETRIS</p>
-        <div className='board mainBoard'>
-          <Board board={board} />
-        </div>
-        <div className='stats'>
-          <p className='statLabel'>Score</p>
-          <p className='score'>{score}</p>
-          <p className='statLabel'>Level</p>
-          <p className='score'>{level}</p>
-          <p className='statLabel'>Next</p>
-          <Board board={this.state.nextTetromino.matrix} />
-          <p className='gameStatus'>{gameStatus}</p>
+      <div className='main-wrapper'>
+        <div className='board-wrapper'>
+          <p className='game-title'>TETRIS</p>
+          <div className='board main-board'>
+            <Board board={board} />
+          </div>
+          <div className='stats'>
+            <div className='stats-wrapper stats-border'>
+              <p className='stat-label'>Score</p>
+              <p className='score'>{score}</p>
+            </div>
+            <div className='stats-wrapper stats-border'>
+              <p className='stat-label'>Level</p>
+              <p className='score'>{level}</p>
+            </div>
+            <div className='stats-wrapper'>
+              <p className='stat-label next-label'>Next</p>
+              <Board board={this.state.nextTetromino.matrix} />
+            </div>
+            <p className='game-status'>{gameStatus}</p>
+          </div>
         </div>
         <div className='controls'>
           <Button

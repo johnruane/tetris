@@ -1,13 +1,16 @@
 :root {
-  --font-family: 'VT323', monospace;
-  --title-font-size-sm: 35px;
-  --title-font-size: 40px;
-  --font-size-sm: 25px;
+  --font-family: monospace;
+  --font-size-xs: 2rem;
+  --font-size-sm: 1.5rem;
   --cell-background-color: #F7F7F7;
-  --button-height: 48px;
-  --button-width: 48px;
-  --background-dimention: 48px;
-  --button-font-size: 20px;
+  --button-height: 3rem;
+  --button-width: 3rem;
+  --background-dimention: 3rem;
+  --button-font-size: 1.5rem;
+}
+
+html {
+  box-sizing: border-box;
 }
 
 body {
@@ -15,14 +18,27 @@ body {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #3F3F3F;
   touch-action: manipulation;
+  background: rgb(55,11,90);
+  background: linear-gradient(19deg, rgba(55,11,90,1) 0%, rgba(162,30,102,1) 100%);
+  height: 100vh;
 }
 
-.boardWrapper {
+p {
+  margin: 0;
+}
+
+.main-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.board-wrapper {
   display: grid;
   justify-content: center;
-  grid-template-columns: auto 100px;
+  grid-template-columns: auto 1fr;
   grid-template-rows: 60px min-content;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
@@ -31,37 +47,53 @@ body {
 .stats {
   display: grid;
   align-content: start;
-  justify-items: center;
-  grid-row-gap: 5px;
+  grid-row-gap: 2rem;
   grid-row: 2;
 }
 
-.statLabel {
+.stats-wrapper {
+  display: grid;
+  grid-auto-flow: row;
+  justify-items: center;
+}
+
+.stats-border {
+  border: 2px solid red;
+  padding: 0.5rem;
+}
+
+.stat-label {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: 1rem;
+  font-weight: bold;
   text-transform: uppercase;
   color: #FFFFFF;
 }
 
-.score {
-  margin: 0 0 12px;
-  color: #FFFFFF;
-  font-size: var(--font-size-sm);
+.next-label {
+  margin-bottom: 0.25rem;
 }
 
-.gameStatus {
-  font-size: var(--font-size-sm);
+.score {
+  color: #FFFFFF;
+  font-size: 1.5rem;
+}
+
+.game-status {
+  font-size: 1.5rem;
+  font-weight: bold;
   text-align: center;
   text-transform: uppercase;
   color: #FFFFFF;
   margin: 24px 0 0;  
 }
 
-.gameTitle {
-  grid-column: 1;
+.game-title {
+  grid-column: 1 / span2;
   grid-row: 1;
   text-transform: uppercase;
-  font-size: var(--title-font-size);
+  font-size: 2.5rem;
+  font-weight: bold;
   text-align: center;
   color: #FFFFFF;
   margin: 0;
@@ -70,8 +102,8 @@ body {
 
 
 @media (max-width: 767px) {
-  .gameTitle {
-    font-size: var(--title-font-size-sm);
+  .game-title {
+    font-size: 2rem;
     grid-column: 1 / span 2;
   }
 }
@@ -141,35 +173,50 @@ body {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M5.115 3.515c4.617-4.618 12.056-4.676 16.756-.195l2.129-2.258v7.938h-7.484l2.066-2.191c-2.82-2.706-7.297-2.676-10.073.1-4.341 4.341-1.737 12.291 5.491 12.291v4.8c-3.708 0-6.614-1.244-8.885-3.515-4.686-4.686-4.686-12.284 0-16.97z'/%3e%3c/svg%3e");
 }
 
+
+/* T shape */
 [data-value="3"],
 [data-value="-3"] {
-  background: #FFFF01;
-}
-[data-value="4"],
-[data-value="-4"] {
-  background: #00FF01;
-}
-[data-value="5"],
-[data-value="-5"] {
-  background: #FE0000;
-}
-[data-value="6"],
-[data-value="-6"] {
-  background: #AA00FF;
-}
-[data-value="7"],
-[data-value="-7"] {
-  background: #FFA600;
-}
-[data-value="8"],
-[data-value="-8"] {
-  background: #0000FE;
-}
-[data-value="9"],
-[data-value="-9"] {
-  background: #01FFFE;
+  background: #9900FE;
 }
 
+/* Left L shape */
+[data-value="4"],
+[data-value="-4"] {
+  background: #1500FF;
+}
+
+/* Right L shape */
+[data-value="5"],
+[data-value="-5"] {
+  background: #FFAA00;
+}
+
+/* Right skew shape */
+[data-value="6"],
+[data-value="-6"] {
+  background: #00FF00;
+}
+
+/* Left skew shape */
+[data-value="7"],
+[data-value="-7"] {
+  background: #FF0100;
+}
+
+/* Square shape */
+[data-value="8"],
+[data-value="-8"] {
+  background: #FEFF00;
+}
+
+/* Bar shape */
+[data-value="9"],
+[data-value="-9"] {
+  background: #0AFEFF;
+}
+
+/* Edge pieces */
 [data-value="-1"],
 [data-value="-2"] {
   background: grey;
@@ -183,7 +230,7 @@ body {
   border-bottom: none;
 }
 
-.mainBoard {
+.main-board {
   grid-row: 2;
 }
 

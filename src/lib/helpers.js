@@ -20,20 +20,6 @@ export function cloneArray(array) {
 }
 
 /*
- * reverse loop board and set any positive cells to 0
- */
-export function clearBoard(board, row, column) {
-  for (let i = row; i >= 0; i--) {
-    for (let j = 0; j <= column; j++) {
-      if (board[i][j] > 0) {
-        board[i][j] = 0;
-      }
-    }
-  }
-  return board;
-}
-
-/*
  * adds a new piece (minus the zeros) to a board at position provided
  */
 export function addTetrominoToBoard(board, tetromino, r, c) {
