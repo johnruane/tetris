@@ -270,6 +270,10 @@ export default class Tetris extends React.Component {
             <Board board={board} />
           </div>
           <div className='stats'>
+            <div className='stats-wrapper'>
+              <p className='stat-label next-label'>Next</p>
+              <Board board={this.state.nextTetromino.matrix} />
+            </div>
             <div className='stats-wrapper stats-border'>
               <p className='stat-label'>Score</p>
               <p className='score'>{score}</p>
@@ -277,10 +281,6 @@ export default class Tetris extends React.Component {
             <div className='stats-wrapper stats-border'>
               <p className='stat-label'>Level</p>
               <p className='score'>{level}</p>
-            </div>
-            <div className='stats-wrapper'>
-              <p className='stat-label next-label'>Next</p>
-              <Board board={this.state.nextTetromino.matrix} />
             </div>
             <p className='game-status'>{gameStatus}</p>
           </div>
