@@ -32,9 +32,11 @@ export default class Tetris extends React.Component {
       nextTetromino: getRandomTetromino(),
       tetrominoPosR: 0,
       tetrominoPosC: 4,
-      intervalTime: 1000,
+      fallSpeed: 1000,
+      levelSpeed: 30000,
       level: 1,
       levelCounter: 0,
+      lines: 0,
       score: '0000000',
       gameStatus: '',
     };
@@ -42,7 +44,8 @@ export default class Tetris extends React.Component {
 
   componentDidMount() {
     this.setNewTetromino();
-    this.setInterval(this.state.intervalTime);
+    this.setFallSpeedInterval(this.state.fallSpeed);
+    this.setLevelIncreaseInterval(this.state.levelIncrease);
     window.addEventListener('keydown', this.keyPress);
   }
 
@@ -64,7 +67,8 @@ export default class Tetris extends React.Component {
         board: mBoard,
         gameStatus: 'Game Over',
       });
-      window.clearInterval(this.interval);
+      window.clearInterval(this.fallSpeedInterval);
+      window.clearInterval(this.levelIncreaseInterval);
       return false;
     }
 
@@ -76,14 +80,21 @@ export default class Tetris extends React.Component {
   };
 
   /*
-   * Initialises gameplay interval.
+   * Initialises fall speed interval.
    */
-  setInterval = (intervalTime) => {
-    window.clearInterval(this.interval);
-    this.interval = window.setInterval(this.runCycle, intervalTime);
+  setFallSpeedInterval = (fallSpeed) => {
+    window.clearInterval(this.fallSpeedInterval);
+    this.fallSpeedInterval = window.setInterval(this.runCycle, this.state.fallSpeed);
     this.setState({
-      intervalTime: intervalTime,
+      fallSpeed: fallSpeed,
     });
+  };
+
+  setLevelIncreaseInterval = () => {
+    this.levelIncreaseInterval = window.setInterval(
+      this.increaseLevel,
+      this.state.levelSpeed
+    );
   };
 
   /*
@@ -108,13 +119,13 @@ export default class Tetris extends React.Component {
   /*
    * Increases level score
    */
-  checkLevel = () => {
-    const { level, intervalTime } = this.state;
+  increaseLevel = () => {
+    const { level, fallSpeed } = this.state;
+    window.clearInterval(this.fallSpeedInterval);
+    this.setFallSpeedInterval(fallSpeed * 0.9);
     this.setState({
-      level: level + 1,
+      level: this.state.level + 1,
     });
-    window.clearInterval(this.interval);
-    this.setInterval(intervalTime * 0.9);
   };
 
   /*
@@ -149,8 +160,8 @@ export default class Tetris extends React.Component {
       score: convertScore(strScore, multiplier),
       board,
       levelCounter: this.state.levelCounter + 1,
+      lines: this.state.lines + multiplier,
     });
-    this.checkLevel();
   };
 
   /*
@@ -260,45 +271,50 @@ export default class Tetris extends React.Component {
   };
 
   render() {
-    const { board, score, gameStatus, level } = this.state;
-
+    const { board, score, gameStatus, level, lines } = this.state;
     return (
-      <div className='main-wrapper'>
-        <div className='board-wrapper'>
-          <p className='game-title'>TETRIS</p>
-          <div className='board main-board'>
+      <div className='main'>
+        <div className='layout-grid'>
+          <p className='title'>TETRIS</p>
+          <div className='game-board'>
             <Board board={board} />
           </div>
-          <div className='stats'>
-            <div className='stats-wrapper'>
-              <p className='stat-label next-label'>Next</p>
-              <Board board={this.state.nextTetromino.matrix} />
+          <div className='game-data'>
+            <div className='data-wrapper shadow'>
+              <p className='data-title'>Score</p>
+              <p className='data-value'>{score}</p>
             </div>
-            <div className='stats-wrapper stats-border'>
-              <p className='stat-label'>Score</p>
-              <p className='score'>{score}</p>
+            <div className='data-wrapper shadow'>
+              <p className='data-title'>Level</p>
+              <p className='data-value'>{level}</p>
             </div>
-            <div className='stats-wrapper stats-border'>
-              <p className='stat-label'>Level</p>
-              <p className='score'>{level}</p>
+            <div className='data-wrapper shadow'>
+              <p className='data-title'>Lines</p>
+              <p className='data-value'>{lines}</p>
             </div>
-            <p className='game-status'>{gameStatus}</p>
+            <div className='data-wrapper next-board'>
+              <p className='data-title next-label'>Next</p>
+              <div className='tetromino-board'>
+                <Board board={this.state.nextTetromino.matrix} />
+              </div>
+            </div>
           </div>
+          <p className='game-over'>{gameStatus || 'Game over'}</p>
         </div>
-        <div className='controls'>
+        <div className='mcontrols-wrapper'>
           <Button
-            classname={'directionalButton left'}
+            classname={'button left'}
             onClick={() => this.moveTetromino('ArrowLeft')}
           />
-          <Button classname={'directionalButton rotate'} onClick={this.rotateTetromino} />
           <Button
-            classname={'directionalButton down'}
-            onClick={() => this.setDownInterval()}
-          />
-          <Button
-            classname={'directionalButton right'}
+            classname={'button right'}
             onClick={() => this.moveTetromino('ArrowRight')}
           />
+          <Button
+            classname={'button down'}
+            onClick={() => this.moveTetromino('ArrowDown')}
+          />
+          <Button classname={'button rotate'} onClick={this.rotateTetromino} />
         </div>
       </div>
     );
