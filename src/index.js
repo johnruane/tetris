@@ -116,7 +116,7 @@ export default class Tetris extends React.Component {
    * Increases level score
    */
   increaseLevel = () => {
-    const { level, fallSpeed } = this.state;
+    const { fallSpeed } = this.state;
     window.clearInterval(this.fallSpeedInterval);
     this.setFallSpeedInterval(fallSpeed * 0.9);
     this.setState({
