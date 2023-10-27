@@ -287,7 +287,7 @@ export default class Tetris extends React.Component {
               nextTetromino={nextTetromino.matrix}
             />
           </div>
-          <p className='game-over'>{gameStatus || 'Game over'}</p>
+          <p className='game-over'>{gameStatus}</p>
         </div>
         <div className='mcontrols-wrapper'>
           <Controls canMove={this.canMove} rotateTetromino={this.rotateTetromino} />
