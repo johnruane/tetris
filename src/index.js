@@ -9,7 +9,8 @@ import {
 } from './lib/helpers.js';
 import { gameBoard, tetrominos } from './lib/matrices.js';
 import Board from './components/Board.js';
-import Button from './components/Button.js';
+import Controls from './components/Controls.js';
+import SidePanel from './components/SidePanel.js';
 import './index.css';
 
 const getRandomTetromino = () => {
@@ -23,17 +24,16 @@ export default class Tetris extends React.Component {
     this.tetromino = getRandomTetromino();
     this.startPos = [0, 4];
     this.numberOfRows = gameBoard.length;
+    this.levelSpeed = 30000;
 
     this.state = {
       previousBoard: gameBoard,
       board: gameBoard,
-      activeTetromino: this.tetromino.matrix,
-      activeTetrominoValue: this.tetromino.value,
+      activeTetromino: { matrix: this.tetromino.matrix, value: this.tetromino.value },
       nextTetromino: getRandomTetromino(),
-      tetrominoPosR: 0,
-      tetrominoPosC: 4,
+      tetrominoPosR: this.startPos[0],
+      tetrominoPosC: this.startPos[1],
       fallSpeed: 1000,
-      levelSpeed: 30000,
       level: 1,
       levelCounter: 0,
       lines: 0,
@@ -56,7 +56,7 @@ export default class Tetris extends React.Component {
     const { board, activeTetromino } = this.state;
     const mBoard = addTetrominoToBoard(
       cloneArray(board),
-      activeTetromino,
+      activeTetromino.matrix,
       ...this.startPos
     );
     const canAddTetromino = compareBoards(board, mBoard);
@@ -91,10 +91,7 @@ export default class Tetris extends React.Component {
   };
 
   setLevelIncreaseInterval = () => {
-    this.levelIncreaseInterval = window.setInterval(
-      this.increaseLevel,
-      this.state.levelSpeed
-    );
+    this.levelIncreaseInterval = window.setInterval(this.increaseLevel, this.levelSpeed);
   };
 
   /*
@@ -102,12 +99,11 @@ export default class Tetris extends React.Component {
    * and the next tetromino is added at the starting position.
    */
   runCycle = () => {
-    let canMove = this.moveTetromino('ArrowDown');
+    let canMove = this.canMove('ArrowDown');
     if (canMove === false) {
       const { nextTetromino } = this.state;
       this.setState({
-        activeTetromino: nextTetromino.matrix,
-        activeTetrominoValue: nextTetromino.value,
+        activeTetromino: { matrix: nextTetromino.matrix, value: nextTetromino.value },
         nextTetromino: getRandomTetromino(),
       });
       this.freezeTetromino();
@@ -179,7 +175,7 @@ export default class Tetris extends React.Component {
         case 'ArrowLeft':
         case 'ArrowDown':
         default:
-          this.moveTetromino(key);
+          this.canMove(key);
           break;
       }
     }
@@ -193,7 +189,7 @@ export default class Tetris extends React.Component {
   rotateTetromino = () => {
     const { board, previousBoard, activeTetromino, tetrominoPosR, tetrominoPosC } =
       this.state;
-    const rotatedTetromino = rotate(activeTetromino);
+    const rotatedTetromino = rotate(activeTetromino.matrix);
     let mBoard = addTetrominoToBoard(
       cloneArray(previousBoard),
       rotatedTetromino,
@@ -204,7 +200,7 @@ export default class Tetris extends React.Component {
     if (compareBoards(board, mBoard)) {
       this.setState({
         board: mBoard,
-        activeTetromino: rotatedTetromino,
+        activeTetromino: { matrix: rotatedTetromino },
       });
     }
   };
@@ -214,7 +210,20 @@ export default class Tetris extends React.Component {
    * can move to new position then updates state with new board.
    */
 
-  moveTetromino = (direction) => {
+  moveTetromino = (activeTetromino, newDirection) => {
+    this.setState({
+      board: addTetrominoToBoard(
+        cloneArray(this.state.previousBoard),
+        activeTetromino.matrix,
+        newDirection[0],
+        newDirection[1]
+      ),
+      tetrominoPosR: newDirection[0],
+      tetrominoPosC: newDirection[1],
+    });
+  };
+
+  canMove = (direction) => {
     const { board, activeTetromino, tetrominoPosR, tetrominoPosC } = this.state;
     let newDirection;
 
@@ -233,21 +242,12 @@ export default class Tetris extends React.Component {
 
     const mBoard = addTetrominoToBoard(
       cloneArray(board),
-      activeTetromino,
+      activeTetromino.matrix,
       ...newDirection
     );
 
     if (compareBoards(board, mBoard)) {
-      this.setState({
-        board: addTetrominoToBoard(
-          cloneArray(this.state.previousBoard),
-          activeTetromino,
-          newDirection[0],
-          newDirection[1]
-        ),
-        tetrominoPosR: newDirection[0],
-        tetrominoPosC: newDirection[1],
-      });
+      this.moveTetromino(activeTetromino, newDirection);
       return true;
     }
     return false;
@@ -271,7 +271,7 @@ export default class Tetris extends React.Component {
   };
 
   render() {
-    const { board, score, gameStatus, level, lines } = this.state;
+    const { board, score, gameStatus, level, lines, nextTetromino } = this.state;
     return (
       <div className='main'>
         <div className='layout-grid'>
@@ -280,41 +280,17 @@ export default class Tetris extends React.Component {
             <Board board={board} />
           </div>
           <div className='game-data'>
-            <div className='data-wrapper shadow'>
-              <p className='data-title'>Score</p>
-              <p className='data-value'>{score}</p>
-            </div>
-            <div className='data-wrapper shadow'>
-              <p className='data-title'>Level</p>
-              <p className='data-value'>{level}</p>
-            </div>
-            <div className='data-wrapper shadow'>
-              <p className='data-title'>Lines</p>
-              <p className='data-value'>{lines}</p>
-            </div>
-            <div className='data-wrapper next-board'>
-              <p className='data-title next-label'>Next</p>
-              <div className='tetromino-board'>
-                <Board board={this.state.nextTetromino.matrix} />
-              </div>
-            </div>
+            <SidePanel
+              score={score}
+              level={level}
+              lines={lines}
+              nextTetromino={nextTetromino.matrix}
+            />
           </div>
           <p className='game-over'>{gameStatus || 'Game over'}</p>
         </div>
         <div className='mcontrols-wrapper'>
-          <Button
-            classname={'button left'}
-            onClick={() => this.moveTetromino('ArrowLeft')}
-          />
-          <Button
-            classname={'button right'}
-            onClick={() => this.moveTetromino('ArrowRight')}
-          />
-          <Button
-            classname={'button down'}
-            onClick={() => this.moveTetromino('ArrowDown')}
-          />
-          <Button classname={'button rotate'} onClick={this.rotateTetromino} />
+          <Controls canMove={this.canMove} rotateTetromino={this.rotateTetromino} />
         </div>
       </div>
     );

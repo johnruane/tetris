@@ -156,13 +156,12 @@ p {
   margin: 0 auto 24px;
   bottom: 0;
   width: 100%;
-}
 
-@media (min-width: 768px) {
-  .controls {
+  @media (min-width: 768px) {
     display: none;
   }
 }
+
 
 .button {
   width: var(--button-width);
