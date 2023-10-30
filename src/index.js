@@ -134,10 +134,16 @@ export default class Tetris extends React.Component {
     const row = this.numberOfRows - 2; // -2 to skip the floor row
     let winningRowsFound = 0;
     let didFindWinningRow = false;
+
+    // animate cells before removing
     for (let i = row; i >= 0; i--) {
       if (board[i].every((row) => row < 0)) {
         this.animateWinningRow(i);
+      }
+    }
 
+    for (let i = row; i >= 0; i--) {
+      if (board[i].every((row) => row < 0)) {
         board.splice(i, 1); // remove complete row from board
         board.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
 
@@ -152,10 +158,23 @@ export default class Tetris extends React.Component {
     }
   };
 
+  /*
+   * gets the winning row DOM, loops though each cell adding WEB API animation
+   */
   animateWinningRow = (row) => {
     const rowDOM = document.getElementsByClassName('game-board')[0].children.item(row);
-    Array.from(rowDOM).forEach((cell) => {
-      cell.classList.add('win-animation');
+    Array.from(rowDOM.children).forEach((cell) => {
+      const rabbitDownKeyframes = new KeyframeEffect(
+        cell,
+        [
+          { transform: 'scale(1) rotate(0deg)' },
+          { transform: 'scale(0) rotate(-360deg)', offset: 0.99 },
+          { transform: 'scale(1) rotate(0deg)' },
+        ],
+        { duration: 500, fill: 'backwards' }
+      );
+      const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
+      rabbitDownAnimation.play();
     });
   };
 

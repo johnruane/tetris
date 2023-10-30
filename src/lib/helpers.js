@@ -53,7 +53,3 @@ export function compareBoards(currentBoard, newBoard) {
   }
   return canMove;
 }
-
-export function cleanBoardOfActivePiece(board) {
-  return board.map((row) => row.map((piece) => (piece > 0 ? 0 : piece)));
-}
