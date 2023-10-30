@@ -136,8 +136,11 @@ export default class Tetris extends React.Component {
     let didFindWinningRow = false;
     for (let i = row; i >= 0; i--) {
       if (board[i].every((row) => row < 0)) {
+        this.animateWinningRow(i);
+
         board.splice(i, 1); // remove complete row from board
         board.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
+
         winningRowsFound += 1;
         didFindWinningRow = true;
         i++; // put the index back 1 as the rows have shifted down
@@ -147,6 +150,13 @@ export default class Tetris extends React.Component {
     if (didFindWinningRow) {
       this.updateScore(winningRowsFound);
     }
+  };
+
+  animateWinningRow = (row) => {
+    const rowDOM = document.getElementsByClassName('game-board')[0].children.item(row);
+    Array.from(rowDOM).forEach((cell) => {
+      cell.classList.add('win-animation');
+    });
   };
 
   updateScore = (multiplier) => {

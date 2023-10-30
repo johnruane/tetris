@@ -148,6 +148,13 @@ p {
   }
 }
 
+.cell::after {
+  content: "";
+  display: block;
+  width: var(--cell-small);
+  height: var(--cell-small);
+}
+
 .mcontrols-wrapper {
   display: flex;
   justify-content: space-around;
@@ -198,44 +205,44 @@ p {
 }
 
 /* T shape */
-[data-value='3'],
-[data-value='-3'] {
+[data-value='3']::after,
+[data-value='-3']::after {
   background: #9900fe;
 }
 
 /* Left L shape */
-[data-value='4'],
-[data-value='-4'] {
+[data-value='4']::after,
+[data-value='-4']::after {
   background: #1500ff;
 }
 
 /* Right L shape */
-[data-value='5'],
-[data-value='-5'] {
+[data-value='5']::after,
+[data-value='-5']::after {
   background: #ffaa00;
 }
 
 /* Right skew shape */
-[data-value='6'],
-[data-value='-6'] {
+[data-value='6']::after,
+[data-value='-6']::after {
   background: #00ff00;
 }
 
 /* Left skew shape */
-[data-value='7'],
-[data-value='-7'] {
+[data-value='7']::after,
+[data-value='-7']::after {
   background: #ff0100;
 }
 
 /* Square shape */
-[data-value='8'],
-[data-value='-8'] {
+[data-value='8']::after,
+[data-value='-8']::after {
   background: #feff00;
 }
 
 /* Bar shape */
-[data-value='9'],
-[data-value='-9'] {
+[data-value='9']::after,
+[data-value='-9']::after {
   background: #0afeff;
 }
 
@@ -247,4 +254,9 @@ p {
 
 button {
   touch-action: manipulation;
+}
+
+.win-animation {
+  transform: scale(2) rotate(-360deg);
+  transition: transform 500ms ease-in-out;
 }
