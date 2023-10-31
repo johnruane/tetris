@@ -6,10 +6,10 @@ export default class Controls extends React.Component {
     const { canMove, rotateTetromino } = this.props;
     return (
       <>
+        <Button classname={'button rotate'} onClick={rotateTetromino} />
+        <Button classname={'button down'} onClick={() => canMove('ArrowDown')} />
         <Button classname={'button left'} onClick={() => canMove('ArrowLeft')} />
         <Button classname={'button right'} onClick={() => canMove('ArrowRight')} />
-        <Button classname={'button down'} onClick={() => canMove('ArrowDown')} />
-        <Button classname={'button rotate'} onClick={rotateTetromino} />
       </>
     );
   }
