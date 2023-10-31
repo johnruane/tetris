@@ -308,18 +308,18 @@ export default class Tetris extends React.Component {
           <div className='game-board'>
             <Board board={board} />
           </div>
-          <div className='game-data'>
-            <SidePanel
-              score={score}
-              level={level}
-              lines={lines}
-              nextTetromino={nextTetromino.matrix}
-            />
-          </div>
-          <p className='game-over'>{gameStatus}</p>
+          <SidePanel
+            score={score}
+            level={level}
+            lines={lines}
+            nextTetromino={nextTetromino.matrix}
+            gameStatus={gameStatus}
+          />
         </div>
-        <div className='mcontrols-wrapper'>
-          <Controls canMove={this.canMove} rotateTetromino={this.rotateTetromino} />
+        <div className='controls-wrapper'>
+          <div className='controls'>
+            <Controls canMove={this.canMove} rotateTetromino={this.rotateTetromino} />
+          </div>
         </div>
       </div>
     );

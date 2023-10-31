@@ -34,8 +34,10 @@ p {
   display: flex;
   justify-content: center;
   height: 100vh;
+}
 
-  @media (min-width: 768px) {
+@media (min-width: 768px) {
+  .main {
     align-items: center;
   }
 }
@@ -43,15 +45,21 @@ p {
 .layout-grid {
   display: grid;
   grid-template-columns: auto min-content;
-  justify-content: center;
-  align-content: baseline;
+  grid-template-rows: repeat(6, min-content);
+  grid-template-areas: 
+    "title title"
+    "board score"
+    "board level"
+    "board lines"
+    "board next"
+    "board notification";
   grid-column-gap: 1rem;
   grid-row-gap: 1rem;
   margin: 2rem 1rem;
 }
 
 .title {
-  grid-row: 1;
+  grid-area: title;
   text-transform: uppercase;
   font-size: 2rem;
   grid-column: 1 / span 2;
@@ -60,14 +68,16 @@ p {
   color: var(--color-white);
   margin: 0;
   align-self: end;
+}
 
-  @media (min-width: 768px) {
+@media (min-width: 768px) {
+  .title {
     font-size: 2.5rem;
   }
 }
 
 .game-board {
-  grid-row: 2;
+  grid-area: board;
 }
 
 
@@ -75,13 +85,41 @@ p {
   display: grid;
   align-content: start;
   grid-row-gap: 1.5rem;
-  grid-row: 2;
 }
 
 .data-wrapper {
   display: grid;
-  grid-auto-flow: row;
+  grid-template-rows: repeat(2, min-content);
   justify-items: center;
+  align-content: center;
+}
+
+.score {
+  grid-area: score;
+}
+
+.level {
+  grid-area: level;
+}
+
+.lines {
+  grid-area: lines;
+}
+
+.notification {
+  grid-area: notification;
+  align-self: center;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+@media (min-width: 768px) {
+  .notification {
+    font-size: 2rem;
+  }
 }
 
 .shadow {
@@ -99,32 +137,27 @@ p {
   font-weight: bold;
   text-transform: uppercase;
   color: var(--color-white);
+}
 
-  @media (min-width: 768px) {
+@media (min-width: 768px) {
+  .data-title {
     font-size: 1rem;
   }
 }
 
 .next-board {
-  grid-row-gap: 0.25rem;
+  grid-row-gap: 0.5rem;
 }
 
 .data-value {
   color: var(--color-white);
   font-size: 1rem;
-
-  @media (min-width: 768px) {
-    font-size: 1.5rem;
-  }
 }
 
-.game-over {
-  grid-column: 1 / span 2;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--color-white);
+@media (min-width: 768px) {
+  .data-value {
+    font-size: 1.5rem;
+  }
 }
 
 .row {
@@ -141,8 +174,10 @@ p {
   height: var(--cell-small);
   background: var(--cell-background-color);
   border: 1px solid #000000;
-  
-  @media (min-width: 768px) {
+}
+
+@media (min-width: 768px) {
+  .cell {
     width: var(--cell-default);
     height: var(--cell-default);
   }
@@ -155,7 +190,7 @@ p {
   height: var(--cell-small);
 }
 
-.mcontrols-wrapper {
+.controls-wrapper {
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
@@ -163,24 +198,33 @@ p {
   margin: 0 auto 24px;
   bottom: 0;
   width: 100%;
+}
 
-  @media (min-width: 768px) {
+@media (min-width: 768px) {
+  .controls-wrapper {
     display: none;
   }
 }
 
+.controls {
+  display: flex;
+  justify-content: space-around;
+  width: 100vw;
+}
+
 
 .button {
-  width: var(--button-width);
+  width: 100%;
   height: var(--button-height);
+  outline: 1px dashed grey;
   background-position: center center;
   margin: 0;
-  padding: 0;
-  border-radius: 50%;
+  padding: 1rem;
   background-size: 1.5rem;
   background-repeat: no-repeat;
   background-color: var(--color-white);
   border: none;
+  user-select: none;
 }
 
 .button.left {
@@ -195,8 +239,7 @@ p {
 
 .button.down {
   background-position: 50% center;
-  transform: rotate(90deg);
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'> <g transform='rotate(90 12 12)'> <path d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'/></g></svg>");
 }
 
 .rotate {
