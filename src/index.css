@@ -3,9 +3,9 @@
   --font-size-xs: 2rem;
   --font-size-sm: 1.5rem;
   --color-white: #FFFFFF;
-  --cell-small: 18px;
-  --cell-default: 20px;
-  --cell-background-color: #f7f7f7;
+  --cell-small: 1rem;
+  --cell-default: 1.5rem;
+  --cell-background-color: #161616;
   --button-height: 3rem;
   --button-width: 3rem;
   --button-font-size: 1.5rem;
@@ -38,14 +38,14 @@ p {
 
 @media (min-width: 768px) {
   .main {
-    align-items: center;
+    align-items: start;
   }
 }
 
 .layout-grid {
   display: grid;
   grid-template-columns: auto min-content;
-  grid-template-rows: repeat(6, min-content);
+  grid-template-rows: auto repeat(3, 3.5rem) auto;
   grid-template-areas: 
     "title title"
     "board score"
@@ -55,13 +55,20 @@ p {
     "board notification";
   grid-column-gap: 1rem;
   grid-row-gap: 1rem;
-  margin: 2rem 1rem;
+  margin: 1rem 1rem 3rem;
+}
+
+@media (min-width: 768px) {
+  .layout-grid {
+    grid-template-rows: repeat(5, auto);
+    margin: 3rem 0 0;
+  }
 }
 
 .title {
   grid-area: title;
   text-transform: uppercase;
-  font-size: 2rem;
+  font-size: 1.5rem;
   grid-column: 1 / span 2;
   font-weight: bold;
   text-align: center;
@@ -78,8 +85,35 @@ p {
 
 .game-board {
   grid-area: board;
+  position: relative;
 }
 
+.overlay {
+  background-color: rgba(255, 255, 255, 0.3); 
+  color: rgba(255, 255, 255, 0.3);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay-text {
+  background-color: #FFFFFF;
+  color: #000000;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.6rem 0.5rem;
+  display: block;
+  width: calc(100% - 1rem);
+  top: calc(50% - 1.85rem);
+  position: absolute;
+  text-align: center;
+}
+
+.board-wrapper {
+  -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0); 
+  box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0);
+}
 
 .game-data {
   display: grid;
@@ -91,7 +125,7 @@ p {
   display: grid;
   grid-template-rows: repeat(2, min-content);
   justify-items: center;
-  align-content: center;
+  align-content: start;
 }
 
 .score {
@@ -145,8 +179,12 @@ p {
   }
 }
 
-.next-board {
+.next {
   grid-row-gap: 0.5rem;
+}
+
+.next-label {
+  margin-bottom: 0.5rem;
 }
 
 .data-value {
@@ -173,7 +211,7 @@ p {
   width: var(--cell-small);
   height: var(--cell-small);
   background: var(--cell-background-color);
-  border: 1px solid #000000;
+  outline: 1px solid #454545;
 }
 
 @media (min-width: 768px) {
@@ -183,11 +221,14 @@ p {
   }
 }
 
-.cell::after {
-  content: "";
-  display: block;
-  width: var(--cell-small);
-  height: var(--cell-small);
+.tetromino-board {
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+  0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+  0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+}
+
+.tetromino-board .cell[data-value='0'] {
+  background: #f7f7f7;
 }
 
 .controls-wrapper {
@@ -195,7 +236,7 @@ p {
   justify-content: space-around;
   align-items: flex-end;
   position: fixed;
-  margin: 0 auto 24px;
+  margin: 0 auto;
   bottom: 0;
   width: 100%;
 }
@@ -292,7 +333,7 @@ p {
 /* Edge pieces */
 [data-value='-1'],
 [data-value='-2'] {
-  background: grey;
+  display: none;;
 }
 
 button {

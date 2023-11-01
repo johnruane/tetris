@@ -18,13 +18,18 @@ export default class SidePanel extends React.Component {
           <p className='data-title'>Lines</p>
           <p className='data-value'>{lines}</p>
         </div>
-        <div className='next data-wrapper next-board'>
-          <p className='data-title next-label'>Next</p>
-          <div className='tetromino-board'>
-            <Board board={nextTetromino} />
-          </div>
+        <div className='next'>
+          {gameStatus ? (
+            <p className='notification'>{gameStatus}</p>
+          ) : (
+            <div className='data-wrapper'>
+              <p className='data-title next-label'>Next</p>
+              <div className='tetromino-board'>
+                <Board board={nextTetromino} />
+              </div>
+            </div>
+          )}
         </div>
-        <p className='notification'>{gameStatus}</p>
       </>
     );
   }

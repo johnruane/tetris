@@ -43,11 +43,15 @@ export default class Tetris extends React.Component {
   }
 
   componentDidMount() {
+    this.startGame();
+    window.addEventListener('keydown', this.keyPress);
+  }
+
+  startGame = () => {
     this.setNewTetromino();
     this.setFallSpeedInterval(this.state.fallSpeed);
     this.setLevelIncreaseInterval(this.state.levelIncrease);
-    window.addEventListener('keydown', this.keyPress);
-  }
+  };
 
   /*
    * Adds the active tetromino to board at starting position [0, 4]
@@ -162,7 +166,9 @@ export default class Tetris extends React.Component {
    * gets the winning row DOM, loops though each cell adding WEB API animation
    */
   animateWinningRow = (row) => {
-    const rowDOM = document.getElementsByClassName('game-board')[0].children.item(row);
+    const rowDOM = document
+      .querySelectorAll('[data-animation="game-board"]')[0]
+      .children.item(row);
     Array.from(rowDOM.children).forEach((cell) => {
       const rabbitDownKeyframes = new KeyframeEffect(
         cell,
@@ -255,7 +261,6 @@ export default class Tetris extends React.Component {
   canMove = (direction) => {
     const { board, activeTetromino, tetrominoPosR, tetrominoPosC } = this.state;
     let newDirection;
-
     switch (direction) {
       case 'ArrowLeft':
         newDirection = [tetrominoPosR, tetrominoPosC - 1];
@@ -303,18 +308,27 @@ export default class Tetris extends React.Component {
     const { board, score, gameStatus, level, lines, nextTetromino } = this.state;
     return (
       <div className='main'>
-        <div className='layout-grid'>
-          <p className='title'>TETRIS</p>
-          <div className='game-board'>
-            <Board board={board} />
+        <div className='layout-wrapper'>
+          <div className='layout-grid'>
+            <p className='title'>TETRIS</p>
+            <div className='game-board'>
+              <div className='board-wrapper' data-animation='game-board'>
+                <Board board={board} />
+              </div>
+              {gameStatus && (
+                <div className='overlay'>
+                  <span className='overlay-text'>Tap board to play again</span>
+                </div>
+              )}
+            </div>
+            <SidePanel
+              score={score}
+              level={level}
+              lines={lines}
+              nextTetromino={nextTetromino.matrix}
+              gameStatus={gameStatus}
+            />
           </div>
-          <SidePanel
-            score={score}
-            level={level}
-            lines={lines}
-            nextTetromino={nextTetromino.matrix}
-            gameStatus={gameStatus}
-          />
         </div>
         <div className='controls-wrapper'>
           <div className='controls'>
