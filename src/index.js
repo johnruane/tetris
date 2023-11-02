@@ -17,28 +17,34 @@ const getRandomTetromino = () => {
   return tetrominos[Math.floor(Math.random() * Math.floor(tetrominos.length))];
 };
 
+const startPos = [0, 4];
+const tetro = getRandomTetromino();
+
+const initialState = {
+  previousBoard: gameBoard,
+  board: gameBoard,
+  activeTetromino: { matrix: tetro.matrix, value: tetro.value },
+  nextTetromino: getRandomTetromino(),
+  tetrominoPosR: startPos[0],
+  tetrominoPosC: startPos[1],
+  fallSpeed: 1000,
+  level: 1,
+  levelCounter: 0,
+  lines: 0,
+  score: '0000000',
+  gameStatus: '',
+};
+
 export default class Tetris extends React.Component {
   constructor(props) {
     super(props);
 
-    this.tetromino = getRandomTetromino();
     this.startPos = [0, 4];
     this.numberOfRows = gameBoard.length;
     this.levelSpeed = 30000;
 
     this.state = {
-      previousBoard: gameBoard,
-      board: gameBoard,
-      activeTetromino: { matrix: this.tetromino.matrix, value: this.tetromino.value },
-      nextTetromino: getRandomTetromino(),
-      tetrominoPosR: this.startPos[0],
-      tetrominoPosC: this.startPos[1],
-      fallSpeed: 1000,
-      level: 1,
-      levelCounter: 0,
-      lines: 0,
-      score: '0000000',
-      gameStatus: '',
+      ...initialState,
     };
   }
 
@@ -46,6 +52,17 @@ export default class Tetris extends React.Component {
     this.startGame();
     window.addEventListener('keydown', this.keyPress);
   }
+
+  resetGame = () => {
+    this.setState(
+      {
+        ...initialState,
+      },
+      () => {
+        this.startGame();
+      }
+    );
+  };
 
   startGame = () => {
     this.setNewTetromino();
@@ -123,9 +140,7 @@ export default class Tetris extends React.Component {
     const { fallSpeed } = this.state;
     window.clearInterval(this.fallSpeedInterval);
     this.setFallSpeedInterval(fallSpeed * 0.9);
-    this.setState({
-      level: this.state.level + 1,
-    });
+    this.setState((previousState) => ({ level: previousState.level + 1 }));
   };
 
   /*
@@ -244,7 +259,6 @@ export default class Tetris extends React.Component {
    * places piece in new position on a clean board and compares new board with current board. If piece
    * can move to new position then updates state with new board.
    */
-
   moveTetromino = (activeTetromino, newDirection) => {
     this.setState({
       board: addTetrominoToBoard(
@@ -317,7 +331,9 @@ export default class Tetris extends React.Component {
               </div>
               {gameStatus && (
                 <div className='overlay'>
-                  <span className='overlay-text'>Tap board to play again</span>
+                  <span className='overlay-text' onClick={this.resetGame}>
+                    Tap here to play again
+                  </span>
                 </div>
               )}
             </div>

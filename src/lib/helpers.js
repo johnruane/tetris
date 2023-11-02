@@ -1,7 +1,5 @@
 /*
- * @param {string} $str - score
- * @param {number} $m - multiplier
- * creates a string score with the correct zero padding
+ * Creates a string score with the correct zero padding
  */
 export function convertScore(score, m) {
   let s = parseInt(parseInt(score));
@@ -11,8 +9,7 @@ export function convertScore(score, m) {
 }
 
 /*
- * @param {array}
- * bad method for deep copy of board array
+ * Deep copy of board array
  */
 export function cloneArray(array) {
   const strArray = JSON.stringify(array);
@@ -20,7 +17,7 @@ export function cloneArray(array) {
 }
 
 /*
- * adds a new piece (minus the zeros) to a board at position provided
+ * Adds a new piece (minus the zeros) to a board at position provided
  */
 export function addTetrominoToBoard(board, tetromino, r, c) {
   const length = tetromino.length - 1;
@@ -35,7 +32,7 @@ export function addTetrominoToBoard(board, tetromino, r, c) {
 }
 
 /*
- * takes 2 boards and returns false if an active piece on the newBoard is on
+ * Takes 2 boards and returns false if an active piece on the newBoard is on
  * a negative piece on the currentBoard - piece can't move
  */
 export function compareBoards(currentBoard, newBoard) {

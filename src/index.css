@@ -75,6 +75,7 @@ p {
   color: var(--color-white);
   margin: 0;
   align-self: end;
+  text-shadow: 0 0 0.05em #fff, 0 0 0.2em #fe05e1, 0 0 0.3em #fe05e1
 }
 
 @media (min-width: 768px) {
@@ -102,12 +103,23 @@ p {
   color: #000000;
   font-size: 0.75rem;
   font-weight: bold;
-  padding: 0.6rem 0.5rem;
+  padding: 1.5rem 0.5rem;
   display: block;
-  width: calc(100% - 1rem);
-  top: calc(50% - 1.85rem);
+  width: calc(100% - 2rem);
+  top: calc(50% - 3rem);
   position: absolute;
   text-align: center;
+  border: 8px solid #5c5c5c;
+}
+
+@media (min-width: 768px) {
+  .overlay-text {
+    top: calc(50% - 1.85rem);
+  }
+}
+
+.overlay-text:hover {
+  cursor: pointer;
 }
 
 .board-wrapper {
@@ -148,11 +160,12 @@ p {
   text-align: center;
   text-transform: uppercase;
   color: var(--color-white);
+  text-shadow: 0 0 0.05em #fff, 0 0 0.2em #fe05e1, 0 0 0.3em #fe05e1
 }
 
 @media (min-width: 768px) {
   .notification {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 }
 
@@ -173,12 +186,6 @@ p {
   color: var(--color-white);
 }
 
-@media (min-width: 768px) {
-  .data-title {
-    font-size: 1rem;
-  }
-}
-
 .next {
   grid-row-gap: 0.5rem;
 }
@@ -194,7 +201,7 @@ p {
 
 @media (min-width: 768px) {
   .data-value {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 }
 
