@@ -87,13 +87,17 @@ p {
 .game-board {
   grid-area: board;
   position: relative;
+  display: grid;
+}
+
+.game-board-stack {
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .overlay {
   background-color: rgba(255, 255, 255, 0.3); 
   color: rgba(255, 255, 255, 0.3);
-  position: absolute;
-  top: 0;
   width: 100%;
   height: 100%;
 }
@@ -213,8 +217,13 @@ p {
   border-bottom: none;
 }
 
+.cell::after {
+  content: "";
+  display: block;
+}
 
-.cell {
+.cell,
+.cell::after {
   width: var(--cell-small);
   height: var(--cell-small);
   background: var(--cell-background-color);
@@ -222,7 +231,8 @@ p {
 }
 
 @media (min-width: 768px) {
-  .cell {
+  .cell,
+  .cell::after {
     width: var(--cell-default);
     height: var(--cell-default);
   }
@@ -296,44 +306,44 @@ p {
 }
 
 /* T shape */
-[data-value='3'],
-[data-value='-3'] {
+[data-value='3']::after,
+[data-value='-3']::after {
   background: #9900fe;
 }
 
 /* Left L shape */
-[data-value='4'],
-[data-value='-4'] {
+[data-value='4']::after,
+[data-value='-4']::after {
   background: #1500ff;
 }
 
 /* Right L shape */
-[data-value='5'],
-[data-value='-5'] {
+[data-value='5']::after,
+[data-value='-5']::after {
   background: #ffaa00;
 }
 
 /* Right skew shape */
-[data-value='6'],
-[data-value='-6'] {
+[data-value='6']::after,
+[data-value='-6']::after {
   background: #00ff00;
 }
 
 /* Left skew shape */
-[data-value='7'],
-[data-value='-7'] {
+[data-value='7']::after,
+[data-value='-7']::after {
   background: #ff0100;
 }
 
 /* Square shape */
-[data-value='8'],
-[data-value='-8'] {
+[data-value='8']::after,
+[data-value='-8']::after {
   background: #feff00;
 }
 
 /* Bar shape */
-[data-value='9'],
-[data-value='-9'] {
+[data-value='9']::after,
+[data-value='-9']::after {
   background: #0afeff;
 }
 
@@ -341,6 +351,10 @@ p {
 [data-value='-1'],
 [data-value='-2'] {
   display: none;;
+}
+
+.tetromino-board [data-value='0']::after {
+  background-color: #FFFFFF;
 }
 
 button {

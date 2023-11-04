@@ -9,6 +9,7 @@ import {
 } from './lib/helpers.js';
 import { gameBoard, tetrominos } from './lib/matrices.js';
 import Board from './components/Board.js';
+import BackgroundBoard from './components/BackgroundBoard.js';
 import Controls from './components/Controls.js';
 import SidePanel from './components/SidePanel.js';
 import './index.css';
@@ -129,7 +130,6 @@ export default class Tetris extends React.Component {
       });
       this.freezeTetromino();
       this.checkForCompleteRow();
-      this.setNewTetromino();
     }
   };
 
@@ -144,9 +144,9 @@ export default class Tetris extends React.Component {
   };
 
   /*
-   * reverse loop through board. if every cell in a line is < 0 then that's a
-   * winning row. remove winning row, add new row to beginning, increment multiplier.
-   * if winning row found multiply by 100 for score.
+   * Reverse loop through board. If every cell in a line is < 0 then that's a
+   * winning row. Remove winning row, add new row to beginning, increment multiplier.
+   * If winning row found multiply by 100 for score.
    */
   checkForCompleteRow = () => {
     let { board } = this.state;
@@ -154,17 +154,16 @@ export default class Tetris extends React.Component {
     let winningRowsFound = 0;
     let didFindWinningRow = false;
 
-    // animate cells before removing
-    for (let i = row; i >= 0; i--) {
-      if (board[i].every((row) => row < 0)) {
-        this.animateWinningRow(i);
-      }
-    }
+    /* We remove and add rows on a copy of the board. This is because we want to animate
+     * the cells in the row. If the board gets updated whilst the animation is in progress
+     * then the animations will be on the wrong rows and mess up the board.
+     */
+    const copyBoard = cloneArray(board);
 
     for (let i = row; i >= 0; i--) {
-      if (board[i].every((row) => row < 0)) {
-        board.splice(i, 1); // remove complete row from board
-        board.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
+      if (copyBoard[i].every((row) => row < 0)) {
+        copyBoard.splice(i, 1); // remove complete row from board
+        copyBoard.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
 
         winningRowsFound += 1;
         didFindWinningRow = true;
@@ -172,15 +171,26 @@ export default class Tetris extends React.Component {
       }
     }
 
+    // Animate the rows
+    for (let i = row; i >= 0; i--) {
+      if (board[i].every((row) => row < 0)) {
+        this.animateWinningRow(i, copyBoard);
+      }
+    }
+
     if (didFindWinningRow) {
       this.updateScore(winningRowsFound);
+    } else {
+      this.setNewTetromino();
     }
   };
 
   /*
-   * gets the winning row DOM, loops though each cell adding WEB API animation
+   * Gets the winning row DOM, loops though each cell adding animation. Takes in the modified
+   * board with the winning rows removed, after once animation is complete updates the board
+   * state. The cancel() call removes the effects of the animation, restoring the cell scale.
    */
-  animateWinningRow = (row) => {
+  animateWinningRow = (row, copyBoard) => {
     const rowDOM = document
       .querySelectorAll('[data-animation="game-board"]')[0]
       .children.item(row);
@@ -189,12 +199,19 @@ export default class Tetris extends React.Component {
         cell,
         [
           { transform: 'scale(1) rotate(0deg)' },
-          { transform: 'scale(0) rotate(-360deg)', offset: 0.99 },
-          { transform: 'scale(1) rotate(0deg)' },
+          { transform: 'scale(0) rotate(-360deg)', offset: 1 },
         ],
-        { duration: 500, fill: 'backwards' }
+        { duration: 250, fill: 'forwards', pseudoElement: '::after' }
       );
       const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
+      rabbitDownAnimation.onfinish = () => {
+        this.setState({
+          board: copyBoard,
+          previousBoard: copyBoard,
+        });
+        this.setNewTetromino();
+        rabbitDownAnimation.cancel();
+      };
       rabbitDownAnimation.play();
     });
   };
@@ -326,11 +343,11 @@ export default class Tetris extends React.Component {
           <div className='layout-grid'>
             <p className='title'>TETRIS</p>
             <div className='game-board'>
-              <div className='board-wrapper' data-animation='game-board'>
+              <div className='board-wrapper game-board-stack' data-animation='game-board'>
                 <Board board={board} />
               </div>
               {gameStatus && (
-                <div className='overlay'>
+                <div className='overlay game-board-stack'>
                   <span className='overlay-text' onClick={this.resetGame}>
                     Tap here to play again
                   </span>
