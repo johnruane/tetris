@@ -9,7 +9,6 @@ import {
 } from './lib/helpers.js';
 import { gameBoard, tetrominos } from './lib/matrices.js';
 import Board from './components/Board.js';
-import BackgroundBoard from './components/BackgroundBoard.js';
 import Controls from './components/Controls.js';
 import SidePanel from './components/SidePanel.js';
 import './index.css';
@@ -21,6 +20,22 @@ const getRandomTetromino = () => {
 const startPos = [0, 4];
 const tetro = getRandomTetromino();
 
+/*
+ * @previousBoard: The board without the current moving piece. When moving or rotating a piece,
+ * the previous board is a clean board that we can add the moving piece to in order to check
+ * the move is valid. Otherwise we'd have to keep removing it on the next cycle.
+ * @board: The board with all the static pieces
+ * @activeTetromino: The current piece matrix and value
+ * @nextTetromino: The next piece
+ * @tetrominoPosR: Current row position of top left corner of the matrix
+ * @tetrominoPosC: Current column position of top left corner of the matrix
+ * @fallSpeed: Interval at which the cycle runs at
+ * @level: Level in the game. Increments at interval of levelSpeed
+ * @lines: Number of winning rows achieved
+ * @score: Score
+ * @gameStatus: String for 'Game Over' message
+ */
+
 const initialState = {
   previousBoard: gameBoard,
   board: gameBoard,
@@ -30,7 +45,6 @@ const initialState = {
   tetrominoPosC: startPos[1],
   fallSpeed: 1000,
   level: 1,
-  levelCounter: 0,
   lines: 0,
   score: '0000000',
   gameStatus: '',
@@ -112,6 +126,9 @@ export default class Tetris extends React.Component {
     });
   };
 
+  /*
+   * Initialises level speed interval.
+   */
   setLevelIncreaseInterval = () => {
     this.levelIncreaseInterval = window.setInterval(this.increaseLevel, this.levelSpeed);
   };
@@ -158,12 +175,12 @@ export default class Tetris extends React.Component {
      * the cells in the row. If the board gets updated whilst the animation is in progress
      * then the animations will be on the wrong rows and mess up the board.
      */
-    const copyBoard = cloneArray(board);
+    const cloneBoard = cloneArray(board);
 
     for (let i = row; i >= 0; i--) {
-      if (copyBoard[i].every((row) => row < 0)) {
-        copyBoard.splice(i, 1); // remove complete row from board
-        copyBoard.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
+      if (cloneBoard[i].every((row) => row < 0)) {
+        cloneBoard.splice(i, 1); // remove complete row from board
+        cloneBoard.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
 
         winningRowsFound += 1;
         didFindWinningRow = true;
@@ -174,7 +191,7 @@ export default class Tetris extends React.Component {
     // Animate the rows
     for (let i = row; i >= 0; i--) {
       if (board[i].every((row) => row < 0)) {
-        this.animateWinningRow(i, copyBoard);
+        this.animateWinningRow(i, cloneBoard);
       }
     }
 
@@ -190,7 +207,7 @@ export default class Tetris extends React.Component {
    * board with the winning rows removed, after once animation is complete updates the board
    * state. The cancel() call removes the effects of the animation, restoring the cell scale.
    */
-  animateWinningRow = (row, copyBoard) => {
+  animateWinningRow = (row, cloneBoard) => {
     const rowDOM = document
       .querySelectorAll('[data-animation="game-board"]')[0]
       .children.item(row);
@@ -206,8 +223,8 @@ export default class Tetris extends React.Component {
       const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
       rabbitDownAnimation.onfinish = () => {
         this.setState({
-          board: copyBoard,
-          previousBoard: copyBoard,
+          board: cloneBoard,
+          previousBoard: cloneBoard,
         });
         this.setNewTetromino();
         rabbitDownAnimation.cancel();
@@ -217,12 +234,10 @@ export default class Tetris extends React.Component {
   };
 
   updateScore = (multiplier) => {
-    let { board, score } = this.state;
+    let { score } = this.state;
     let strScore = parseInt(score);
     this.setState({
       score: convertScore(strScore, multiplier),
-      board,
-      levelCounter: this.state.levelCounter + 1,
       lines: this.state.lines + multiplier,
     });
   };
