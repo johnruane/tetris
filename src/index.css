@@ -307,6 +307,7 @@ p {
 .button.down {
   grid-column: 1 / span 2;
   grid-row: 2;
+  border-top: 1px dashed grey;
   background-position: 50% center;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'> <g transform='rotate(90 12 12)'> <path d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'/></g></svg>");
 }
