@@ -265,16 +265,16 @@ p {
 }
 
 .controls {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
   width: 100vw;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
 
 .button {
   width: 100%;
-  height: var(--button-height);
-  outline: 1px dashed grey;
+  min-height: var(--button-height);
   background-position: center center;
   margin: 0;
   padding: 1rem;
@@ -283,25 +283,38 @@ p {
   background-color: var(--color-white);
   border: none;
   user-select: none;
+  touch-action: manipulation;
+}
+
+.button + .button {
+  border-left: 1px dashed grey;
 }
 
 .button.left {
-  background-position: 40% center;
+  grid-column: 1;
+  grid-row: 1;
+  background-position: 45% center;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z'/%3e%3c/svg%3e");
 }
 
 .button.right {
-  background-position: 60% center;
+  grid-column: 2;
+  grid-row: 1;
+  background-position: 50% center;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'/%3e%3c/svg%3e");
 }
 
 .button.down {
+  grid-column: 1 / span 2;
+  grid-row: 2;
   background-position: 50% center;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'> <g transform='rotate(90 12 12)'> <path d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'/></g></svg>");
 }
 
-.rotate {
-  background-position: 40% center;
+.button.rotate {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  background-position: 50% center;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath d='M5.115 3.515c4.617-4.618 12.056-4.676 16.756-.195l2.129-2.258v7.938h-7.484l2.066-2.191c-2.82-2.706-7.297-2.676-10.073.1-4.341 4.341-1.737 12.291 5.491 12.291v4.8c-3.708 0-6.614-1.244-8.885-3.515-4.686-4.686-4.686-12.284 0-16.97z'/%3e%3c/svg%3e");
 }
 
@@ -355,8 +368,4 @@ p {
 
 .tetromino-board [data-value='0']::after {
   background-color: #FFFFFF;
-}
-
-button {
-  touch-action: manipulation;
 }

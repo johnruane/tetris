@@ -171,7 +171,7 @@ export default class Tetris extends React.Component {
     let winningRowsFound = 0;
     let didFindWinningRow = false;
 
-    /* We remove and add rows on a copy of the board. This is because we want to animate
+    /* We remove and add rows on a clone of the board. This is because we want to animate
      * the cells in the row. If the board gets updated whilst the animation is in progress
      * then the animations will be on the wrong rows and mess up the board.
      */
@@ -224,7 +224,7 @@ export default class Tetris extends React.Component {
       rabbitDownAnimation.onfinish = () => {
         this.setState({
           board: cloneBoard,
-          previousBoard: cloneBoard,
+          previousBoard: cloneBoard, // Update the clean board ready for the new active piece
         });
         this.setNewTetromino();
         rabbitDownAnimation.cancel();

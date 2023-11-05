@@ -35,14 +35,12 @@ export function addTetrominoToBoard(board, tetromino, r, c) {
  * Takes 2 boards and returns false if an active piece on the newBoard is on
  * a negative piece on the currentBoard - piece can't move
  */
-export function compareBoards(currentBoard, newBoard) {
+export function compareBoards(board, newBoard) {
   let canMove = true;
-  const row = currentBoard.length - 1;
-  const column = currentBoard[0].length - 1;
-  for (let i = 0; i <= row; i++) {
-    for (let j = 0; j <= column; j++) {
+  for (let i = 0, rLen = board.length - 1; i <= rLen; i++) {
+    for (let j = 0, cLen = board[0].length - 1; j <= cLen; j++) {
       if (newBoard[i][j] > 0) {
-        if (currentBoard[i][j] < 0) {
+        if (board[i][j] < 0) {
           canMove = false;
         }
       }
