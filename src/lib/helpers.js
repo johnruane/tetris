@@ -1,33 +1,50 @@
-/*
- * Creates a string score with the correct zero padding
+/**
+ * Creates a string score with the correct zero padding.
+ * Multiplier is applied twice to create a bigger return score
+ *
+ * Example: 100 * 2 * 2 = 400
+ * Example: 100 * 4 * 4 = 1600
+ *
+ * @param {String} score
+ * @param {Number} m Multiplier
+ * @return {String} Updated @score padded with zeros
  */
 export function convertScore(score, m) {
-  let s = parseInt(parseInt(score));
-  let pad = '0000000';
-  s = (s + 100 * m * m).toString();
-  return pad.concat(s).substr(s.length);
+  const s = parseInt(score) + 100 * m * m;
+  return s.toString().padStart(7, '0');
 }
 
-/*
- * Deep copy of board array
+/**
+ * Deep clones array
+ *
+ * @return {Array} Array copy
  */
 export function cloneArray(array) {
   const strArray = JSON.stringify(array);
   return JSON.parse(strArray);
 }
 
-/*
- * Adds a new piece (minus the zeros) to a board at position provided
+/**
+ * Adds @tetromino to @board at specified @r & @c
+ * @r & @c refer to the top left corner of the @tetromino
+ * @tetromino cells that are positioned outside the bounds of @board are ignored
+ * Only positive @tetromino values are added to @board, zeros are ignored
+ *
+ * @param {Number[][]} board
+ * @param {{matrix: Number[][], value: Number}} tetromino Requires @tetromino.matrix
+ * @param {Number} r Row
+ * @param {Number} c Column
+ * @return {Number[][]} New board with @tetromino added
  */
 export function addTetrominoToBoard(board, tetromino, r, c) {
-  const length = tetromino.length - 1;
-  for (let i = 0; i <= length; i++) {
-    for (let j = 0; j <= length; j++) {
-      if (tetromino[i][j] > 0) {
-        board[r + i][c + j] = tetromino[i][j];
+  tetromino.forEach((row, i) => {
+    row.forEach((cell, j) => {
+      if (cell > 0 && r + i < board.length && c + j < board[0].length) {
+        board[r + i][c + j] = cell;
       }
-    }
-  }
+    });
+  });
+
   return board;
 }
 

@@ -235,9 +235,8 @@ export default class Tetris extends React.Component {
 
   updateScore = (multiplier) => {
     let { score } = this.state;
-    let strScore = parseInt(score);
     this.setState({
-      score: convertScore(strScore, multiplier),
+      score: convertScore(score, multiplier),
       lines: this.state.lines + multiplier,
     });
   };
