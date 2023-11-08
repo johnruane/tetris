@@ -31,7 +31,7 @@ export function cloneArray(array) {
  * Only positive @tetromino values are added to @board, zeros are ignored
  *
  * @param {Number[][]} board
- * @param {{matrix: Number[][], value: Number}} tetromino Requires @tetromino.matrix
+ * @param {Number[][]} tetromino
  * @param {Number} r Row
  * @param {Number} c Column
  * @return {Number[][]} New board with @tetromino added
@@ -48,20 +48,43 @@ export function addTetrominoToBoard(board, tetromino, r, c) {
   return board;
 }
 
-/*
- * Takes 2 boards and returns false if an active piece on the newBoard is on
- * a negative piece on the currentBoard - piece can't move
+/**
+ * Takes @board and @newBoard and returns true if an active piece on @newBoard is
+ * NOT on a negative piece on @board
+ *
+ * @param {Number[][]} board
+ * @param {Number[][]} newBoard
+ * @return {Boolean} Tetromino can be moved in new direction
  */
 export function compareBoards(board, newBoard) {
-  let canMove = true;
   for (let i = 0, rLen = board.length - 1; i <= rLen; i++) {
     for (let j = 0, cLen = board[0].length - 1; j <= cLen; j++) {
       if (newBoard[i][j] > 0) {
         if (board[i][j] < 0) {
-          canMove = false;
+          return false;
         }
       }
     }
   }
-  return canMove;
+  return true;
+}
+
+/**
+ * Takes @matrix and rotates the rows
+ *
+ * @param {Number[][]} matrix
+ * @return {Number[][]} Rotated @matrix
+ */
+export function rotateMatrix(matrix) {
+  let newMatrix = [];
+  const matrixLength = matrix.length - 1;
+
+  for (let i = 0; i <= matrixLength; i++) {
+    let row = [];
+    for (let j = 0; j <= matrixLength; j++) {
+      row.push(matrix[matrixLength - j][i]);
+    }
+    newMatrix.push(row);
+  }
+  return newMatrix;
 }
