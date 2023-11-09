@@ -8,6 +8,7 @@ import {
   rotateMatrix,
 } from './lib/helpers.js';
 import { gameBoard, tetrominos } from './lib/matrices.js';
+import { useInterval } from './hooks/useInterval.js';
 import Board from './components/Board.js';
 import Controls from './components/Controls.js';
 import SidePanel from './components/SidePanel.js';
@@ -321,12 +322,7 @@ const Tetris = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fallSpeedInterval = setInterval(() => {
-      runCycle();
-    }, fallSpeed);
-    return () => clearInterval(fallSpeedInterval);
-  }, []);
+  useInterval(runCycle, fallSpeed);
 
   return (
     <div className='main'>
