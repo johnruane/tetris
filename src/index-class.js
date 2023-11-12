@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import {
   convertScore,
@@ -8,7 +8,6 @@ import {
   rotateMatrix,
 } from './lib/helpers.js';
 import { gameBoard, tetrominos } from './lib/matrices.js';
-import { useInterval } from './hooks/useInterval.js';
 import Board from './components/Board.js';
 import Controls from './components/Controls.js';
 import SidePanel from './components/SidePanel.js';
@@ -17,6 +16,9 @@ import './index.css';
 const getRandomTetromino = () => {
   return tetrominos[Math.floor(Math.random() * Math.floor(tetrominos.length))];
 };
+
+const startPos = [0, 4];
+const tetro = getRandomTetromino();
 
 /*
  * @previousBoard: The board without the current moving piece. When moving or rotating a piece,
@@ -34,110 +36,128 @@ const getRandomTetromino = () => {
  * @gameStatus: String for 'Game Over' message
  */
 
-const Tetris = () => {
-  const startPos = [0, 4];
-  const numberOfRows = gameBoard.length;
-  const levelSpeed = 30000;
-  const tetro = getRandomTetromino();
+const initialState = {
+  previousBoard: gameBoard,
+  board: gameBoard,
+  activeTetromino: { matrix: tetro.matrix, value: tetro.value },
+  nextTetromino: getRandomTetromino(),
+  tetrominoPosR: startPos[0],
+  tetrominoPosC: startPos[1],
+  fallSpeed: 1000,
+  level: 1,
+  lines: 0,
+  score: '0000000',
+  gameStatus: '',
+};
 
-  const [board, setBoard] = useState(gameBoard);
-  const [previousBoard, setPreviousBoard] = useState(gameBoard);
-  const [activeTetromino, setActiveTetromino] = useState({
-    matrix: tetro.matrix,
-    value: tetro.value,
-  });
-  const [nextTetromino, setNextTetromino] = useState(getRandomTetromino());
-  const [tetrominoPosR, setTetrominoPosR] = useState(startPos[0]);
-  const [tetrominoPosC, setTetrominoPosC] = useState(startPos[1]);
-  const [fallSpeed, setFallSpeed] = useState(1000);
-  const [level, setLevel] = useState(1);
-  const [lines, setLines] = useState(0);
-  const [score, setScore] = useState('0000000');
-  const [gameStatus, setGameStatus] = useState('');
+export default class Tetris extends React.Component {
+  constructor(props) {
+    super(props);
 
-  const resetGame = () => {
-    setBoard(gameBoard);
-    setPreviousBoard(gameBoard);
-    setActiveTetromino(...getRandomTetromino());
-    setNextTetromino(...getRandomTetromino());
-    setTetrominoPosR(startPos[0]);
-    setTetrominoPosC(startPos[1]);
-    setFallSpeed(1000);
-    setLevel(1);
-    setLines(0);
-    setScore('0000000');
-    setGameStatus('');
-    startGame();
+    this.startPos = [0, 4];
+    this.numberOfRows = gameBoard.length;
+    this.levelSpeed = 30000;
+
+    this.state = {
+      ...initialState,
+    };
+  }
+
+  componentDidMount() {
+    this.startGame();
+    window.addEventListener('keydown', this.keyPress);
+  }
+
+  resetGame = () => {
+    this.setState(
+      {
+        ...initialState,
+      },
+      () => {
+        this.startGame();
+      }
+    );
   };
 
-  const startGame = () => {
-    setNewTetromino();
-    // setFallSpeedInterval(fallSpeed);
-    // setLevelIncreaseInterval(levelIncrease);
+  startGame = () => {
+    this.setNewTetromino();
+    this.setFallSpeedInterval(this.state.fallSpeed);
+    this.setLevelIncreaseInterval(this.state.levelIncrease);
   };
 
   /*
    * Adds the active tetromino to board at starting position [0, 4]
    */
-  const setNewTetromino = () => {
+  setNewTetromino = () => {
+    const { board, activeTetromino } = this.state;
     const mBoard = addTetrominoToBoard(
       cloneArray(board),
       activeTetromino.matrix,
-      ...startPos
+      ...this.startPos
     );
     const canAddTetromino = compareBoards(board, mBoard);
 
     // Ends game
     if (canAddTetromino === false) {
-      setBoard(mBoard);
-      setGameStatus('Game Over');
-      // window.clearInterval(fallSpeedInterval);
-      // window.clearInterval(levelIncreaseInterval);
+      this.setState({
+        board: mBoard,
+        gameStatus: 'Game Over',
+      });
+      window.clearInterval(this.fallSpeedInterval);
+      window.clearInterval(this.levelIncreaseInterval);
       return false;
     }
 
-    setBoard(mBoard);
-    setTetrominoPosR(startPos[0]);
-    setTetrominoPosC(startPos[1]);
+    this.setState({
+      board: mBoard,
+      tetrominoPosR: this.startPos[0],
+      tetrominoPosC: this.startPos[1],
+    });
   };
 
   /*
    * Initialises fall speed interval.
    */
-  const setFallSpeedInterval = (fallSpeed) => {
-    // window.clearInterval(fallSpeedInterval);
-    const fallSpeedInterval = window.setInterval(runCycle, fallSpeed);
-    setFallSpeed(fallSpeed);
+  setFallSpeedInterval = (fallSpeed) => {
+    window.clearInterval(this.fallSpeedInterval);
+    this.fallSpeedInterval = window.setInterval(this.runCycle, this.state.fallSpeed);
+    this.setState({
+      fallSpeed: fallSpeed,
+    });
   };
 
   /*
    * Initialises level speed interval.
    */
-  const setLevelIncreaseInterval = () => {
-    // levelIncreaseInterval = window.setInterval(increaseLevel(), levelSpeed);
+  setLevelIncreaseInterval = () => {
+    this.levelIncreaseInterval = window.setInterval(this.increaseLevel, this.levelSpeed);
   };
 
   /*
    * Will try move activeTetromino 'Down'. If it cannot move 'Down' that piece is set to be static
    * and the next tetromino is added at the starting position.
    */
-  const runCycle = () => {
-    let canTetrominoMove = canMove('ArrowDown');
-    if (canTetrominoMove === false) {
-      setActiveTetromino({ matrix: nextTetromino.matrix, value: nextTetromino.value });
-      setNextTetromino(getRandomTetromino());
-      freezeTetromino();
-      checkForCompleteRow();
+  runCycle = () => {
+    let canMove = this.canMove('ArrowDown');
+    if (canMove === false) {
+      const { nextTetromino } = this.state;
+      this.setState({
+        activeTetromino: { matrix: nextTetromino.matrix, value: nextTetromino.value },
+        nextTetromino: getRandomTetromino(),
+      });
+      this.freezeTetromino();
+      this.checkForCompleteRow();
     }
   };
 
   /*
    * Increases level score
    */
-  const increaseLevel = () => {
-    // window.clearInterval(fallSpeedInterval);
-    setFallSpeedInterval(fallSpeed * 0.9);
-    setLevel((prev) => ({ level: prev + 1 }));
+  increaseLevel = () => {
+    const { fallSpeed } = this.state;
+    window.clearInterval(this.fallSpeedInterval);
+    this.setFallSpeedInterval(fallSpeed * 0.9);
+    this.setState((previousState) => ({ level: previousState.level + 1 }));
   };
 
   /*
@@ -145,8 +165,9 @@ const Tetris = () => {
    * winning row. Remove winning row, add new row to beginning, increment multiplier.
    * If winning row found multiply by 100 for score.
    */
-  const checkForCompleteRow = () => {
-    const row = numberOfRows - 2; // -2 to skip the floor row
+  checkForCompleteRow = () => {
+    let { board } = this.state;
+    const row = this.numberOfRows - 2; // -2 to skip the floor row
     let winningRowsFound = 0;
     let didFindWinningRow = false;
 
@@ -158,26 +179,26 @@ const Tetris = () => {
 
     for (let i = row; i >= 0; i--) {
       if (cloneBoard[i].every((row) => row < 0)) {
-        cloneBoard.splice(i, 1); // Remove complete row from board
+        cloneBoard.splice(i, 1); // remove complete row from board
         cloneBoard.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
 
         winningRowsFound += 1;
         didFindWinningRow = true;
-        i++; // Put the index back 1 as the rows have shifted down
+        i++; // put the index back 1 as the rows have shifted down
       }
     }
 
     // Animate the rows
     for (let i = row; i >= 0; i--) {
       if (board[i].every((row) => row < 0)) {
-        animateWinningRow(i, cloneBoard);
+        this.animateWinningRow(i, cloneBoard);
       }
     }
 
     if (didFindWinningRow) {
-      updateScore(winningRowsFound);
+      this.updateScore(winningRowsFound);
     } else {
-      setNewTetromino();
+      this.setNewTetromino();
     }
   };
 
@@ -186,7 +207,7 @@ const Tetris = () => {
    * board with the winning rows removed, after once animation is complete updates the board
    * state. The cancel() call removes the effects of the animation, restoring the cell scale.
    */
-  const animateWinningRow = (row, cloneBoard) => {
+  animateWinningRow = (row, cloneBoard) => {
     const rowDOM = document
       .querySelectorAll('[data-animation="game-board"]')[0]
       .children.item(row);
@@ -201,47 +222,54 @@ const Tetris = () => {
       );
       const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
       rabbitDownAnimation.onfinish = () => {
-        setBoard(cloneBoard);
-        setPreviousBoard(cloneBoard); // Update the clean board ready for the new active piece
-        setNewTetromino();
+        this.setState({
+          board: cloneBoard,
+          previousBoard: cloneBoard, // Update the clean board ready for the new active piece
+        });
+        this.setNewTetromino();
         rabbitDownAnimation.cancel();
       };
       rabbitDownAnimation.play();
     });
   };
 
-  const updateScore = (multiplier) => {
-    setScore(convertScore(score, multiplier));
-    setLines(lines + multiplier);
+  updateScore = (multiplier) => {
+    let { score } = this.state;
+    this.setState({
+      score: convertScore(score, multiplier),
+      lines: this.state.lines + multiplier,
+    });
   };
 
   /*
-   * Keypress events
+   * keypress events
    */
-  const keyPress = (event) => {
+  keyPress = (event) => {
     const key = event.code;
     const validKeys = ['Space', 'ArrowRight', 'ArrowLeft', 'ArrowDown'];
     if (validKeys.includes(key)) {
       switch (key) {
         case 'Space':
-          rotateTetromino();
+          this.rotateTetromino();
           break;
         case 'ArrowRight':
         case 'ArrowLeft':
         case 'ArrowDown':
         default:
-          canMove(key);
+          this.canMove(key);
           break;
       }
     }
   };
 
   /*
-   * Rotate the active game piece, add the piece to a temp board, test if the new
+   * rotate the active game piece, add the piece to a temp board, test if the new
    * piece lands on an invalid cell on the current board. if it doesn't then set
    * the current board to the temp board
    */
-  const rotateTetromino = () => {
+  rotateTetromino = () => {
+    const { board, previousBoard, activeTetromino, tetrominoPosR, tetrominoPosC } =
+      this.state;
     const rotatedTetromino = rotateMatrix(activeTetromino.matrix);
     let mBoard = addTetrominoToBoard(
       cloneArray(previousBoard),
@@ -251,29 +279,32 @@ const Tetris = () => {
     );
 
     if (compareBoards(board, mBoard)) {
-      setBoard(mBoard);
-      setActiveTetromino({ matrix: rotatedTetromino });
+      this.setState({
+        board: mBoard,
+        activeTetromino: { matrix: rotatedTetromino },
+      });
     }
   };
 
   /*
-   * Places piece in new position on a clean board and compares new board with current board. If piece
+   * places piece in new position on a clean board and compares new board with current board. If piece
    * can move to new position then updates state with new board.
    */
-  const moveTetromino = (activeTetromino, newDirection) => {
-    setBoard(
-      addTetrominoToBoard(
-        cloneArray(previousBoard),
+  moveTetromino = (activeTetromino, newDirection) => {
+    this.setState({
+      board: addTetrominoToBoard(
+        cloneArray(this.state.previousBoard),
         activeTetromino.matrix,
         newDirection[0],
         newDirection[1]
-      )
-    );
-    setTetrominoPosR(newDirection[0]);
-    setTetrominoPosC(newDirection[1]);
+      ),
+      tetrominoPosR: newDirection[0],
+      tetrominoPosC: newDirection[1],
+    });
   };
 
-  const canMove = (direction) => {
+  canMove = (direction) => {
+    const { board, activeTetromino, tetrominoPosR, tetrominoPosC } = this.state;
     let newDirection;
     switch (direction) {
       case 'ArrowLeft':
@@ -295,70 +326,65 @@ const Tetris = () => {
     );
 
     if (compareBoards(board, mBoard)) {
-      moveTetromino(activeTetromino, newDirection);
+      this.moveTetromino(activeTetromino, newDirection);
       return true;
     }
     return false;
   };
 
   /*
-   * Maps through rows & columns and negates positive numbered squares in order
+   * maps through rows & columns and negates positive numbered squares in order
    * to stop them from being moved
    */
-  const freezeTetromino = () => {
+  freezeTetromino = () => {
+    const { board } = this.state;
+
     const newBoard = cloneArray(board).map((row) => {
       return row.map((piece) => (piece > 0 ? -Math.abs(piece) : piece));
     });
 
-    setBoard(newBoard);
-    setPreviousBoard(newBoard);
+    this.setState({
+      board: newBoard,
+      previousBoard: newBoard,
+    });
   };
 
-  useEffect(() => {
-    startGame();
-    window.addEventListener('keydown', keyPress);
-    return () => {
-      window.removeEventListener('keydown', keyPress);
-    };
-  }, []);
-
-  useInterval(runCycle, fallSpeed);
-
-  return (
-    <div className='main'>
-      <div className='layout-wrapper'>
-        <div className='layout-grid'>
-          <p className='title'>TETRIS</p>
-          <div className='game-board'>
-            <div className='board-wrapper game-board-stack' data-animation='game-board'>
-              <Board board={board} />
-            </div>
-            {gameStatus && (
-              <div className='overlay game-board-stack'>
-                <span className='overlay-text' onClick={resetGame}>
-                  Tap here to play again
-                </span>
+  render() {
+    const { board, score, gameStatus, level, lines, nextTetromino } = this.state;
+    return (
+      <div className='main'>
+        <div className='layout-wrapper'>
+          <div className='layout-grid'>
+            <p className='title'>TETRIS</p>
+            <div className='game-board'>
+              <div className='board-wrapper game-board-stack' data-animation='game-board'>
+                <Board board={board} />
               </div>
-            )}
+              {gameStatus && (
+                <div className='overlay game-board-stack'>
+                  <span className='overlay-text' onClick={this.resetGame}>
+                    Tap here to play again
+                  </span>
+                </div>
+              )}
+            </div>
+            <SidePanel
+              score={score}
+              level={level}
+              lines={lines}
+              nextTetromino={nextTetromino.matrix}
+              gameStatus={gameStatus}
+            />
           </div>
-          <SidePanel
-            score={score}
-            level={level}
-            lines={lines}
-            nextTetromino={nextTetromino.matrix}
-            gameStatus={gameStatus}
-          />
+        </div>
+        <div className='controls-wrapper'>
+          <div className='controls'>
+            <Controls canMove={this.canMove} rotateTetromino={this.rotateTetromino} />
+          </div>
         </div>
       </div>
-      <div className='controls-wrapper'>
-        <div className='controls'>
-          <Controls canMove={canMove} rotateTetromino={rotateTetromino} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Tetris;
+    );
+  }
+}
 
 ReactDOM.render(<Tetris />, document.getElementById('root'));
