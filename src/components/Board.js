@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Board = (board) => {
+const Board = ({ board }) => {
   return (
     <>
       {board?.map((boardRow, i) => (
