@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useReducer } from 'react';
 import ReactDOM from 'react-dom';
+import { bindActionCreators } from '@reduxjs/toolkit';
 import {
   convertScore,
   cloneArray,
@@ -7,7 +8,9 @@ import {
   compareBoards,
   rotateMatrix,
 } from './lib/helpers.js';
-import { gameBoard, tetrominos } from './lib/matrices.js';
+import { useBoardReducer } from './store/index.js';
+import { tetrominos } from './lib/matrices.js';
+import { gameBoard } from './lib/board.js';
 import { useInterval } from './hooks/useInterval.js';
 import Board from './components/Board.js';
 import Controls from './components/Controls.js';
@@ -38,7 +41,7 @@ const Tetris = () => {
   const numberOfRows = gameBoard.length;
   const tetro = getRandomTetromino();
 
-  const [board, setBoard] = useState(gameBoard);
+  // const [board, setBoard] = useState(gameBoard);
   const [previousBoard, setPreviousBoard] = useState(gameBoard);
   const [nextTetromino, setNextTetromino] = useState(getRandomTetromino());
   const [position, setPosition] = useState({ row: 0, column: 4 });
@@ -51,236 +54,254 @@ const Tetris = () => {
   const [score, setScore] = useState('0000000');
   const [gameStatus, setGameStatus] = useState('');
 
-  const setStartingPiece = useCallback(() => {
+  const { getInitialState, reducer, actions } = useBoardReducer;
+  const [state, dispatch] = useReducer(reducer, getInitialState());
+
+  console.log(getInitialState());
+
+  const { setBoard } = bindActionCreators(actions, dispatch);
+  const { board } = state;
+
+  const setStartingPiece = () => {
     const mBoard = addTetrominoToBoard(cloneArray(board), activeTetromino.matrix, 0, 4);
+    console.log(activeTetromino);
     const canAddTetromino = compareBoards(board, mBoard);
 
     // Ends game
     if (!canAddTetromino) {
-      setBoard(mBoard);
+      // setBoard(mBoard);
       setGameStatus('Game Over');
       return;
     }
-
-    setBoard(mBoard);
-  }, [activeTetromino.matrix, board]);
-
-  const resetGame = () => {
-    setBoard(gameBoard);
-    setPreviousBoard(gameBoard);
-    setActiveTetromino(getRandomTetromino());
-    setNextTetromino(getRandomTetromino());
-    setPosition({ row: 0, column: 4 });
-    setLevel(1);
-    setLines(0);
-    setScore('0000000');
-    setGameStatus('');
-    setStartingPiece();
+    // console.log(mBoard);
+    // setBoard(mBoard);
   };
+
+  // const resetGame = () => {
+  //   setBoard(gameBoard);
+  //   setPreviousBoard(gameBoard);
+  //   setActiveTetromino(getRandomTetromino());
+  //   setNextTetromino(getRandomTetromino());
+  //   setPosition({ row: 0, column: 4 });
+  //   setLevel(1);
+  //   setLines(0);
+  //   setScore('0000000');
+  //   setGameStatus('');
+  //   setStartingPiece();
+  // };
 
   /*
    * Gets the winning row DOM, loops though each cell adding animation. Takes in the modified
    * board with the winning rows removed, after once animation is complete updates the board
    * state. The cancel() call removes the effects of the animation, restoring the cell scale.
    */
-  const animateWinningRow = useCallback(
-    (row, cloneBoard) => {
-      const rowDOM = document
-        .querySelectorAll('[data-animation="game-board"]')[0]
-        .children.item(row);
-      Array.from(rowDOM.children).forEach((cell) => {
-        const rabbitDownKeyframes = new KeyframeEffect(
-          cell,
-          [
-            { transform: 'scale(1) rotate(0deg)' },
-            { transform: 'scale(0) rotate(-360deg)', offset: 1 },
-          ],
-          { duration: 250, fill: 'forwards', pseudoElement: '::after' }
-        );
-        const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
-        rabbitDownAnimation.onfinish = () => {
-          setBoard(cloneBoard);
-          setPreviousBoard(cloneBoard); // Update the clean board ready for the new active piece
-          setStartingPiece();
-          rabbitDownAnimation.cancel();
-        };
-        rabbitDownAnimation.play();
-      });
-    },
-    [setStartingPiece]
-  );
+  // const animateWinningRow = (row, cloneBoard) => {
+  //   const rowDOM = document
+  //     .querySelectorAll('[data-animation="game-board"]')[0]
+  //     .children.item(row);
+  //   Array.from(rowDOM.children).forEach((cell) => {
+  //     const rabbitDownKeyframes = new KeyframeEffect(
+  //       cell,
+  //       [
+  //         { transform: 'scale(1) rotate(0deg)' },
+  //         { transform: 'scale(0) rotate(-360deg)', offset: 1 },
+  //       ],
+  //       { duration: 250, fill: 'forwards', pseudoElement: '::after' }
+  //     );
+  //     const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
+  //     rabbitDownAnimation.onfinish = () => {
+  //       // setBoard(cloneBoard);
+  //       setBoard(cloneBoard);
+  //       setPreviousBoard(cloneBoard); // Update the clean board ready for the new active piece
+  //       setStartingPiece();
+  //       rabbitDownAnimation.cancel();
+  //     };
+  //     rabbitDownAnimation.play();
+  //   });
+  // };
 
-  const updateScore = useCallback(
-    (multiplier) => {
-      setScore(convertScore(score, multiplier));
-      setLines(lines + multiplier);
-    },
-    [lines, score]
-  );
+  // const updateScore = (multiplier) => {
+  //   setScore(convertScore(score, multiplier));
+  //   setLines(lines + multiplier);
+  // };
 
   /*
    * Reverse loop through board. If every cell in a line is < 0 then that's a
    * winning row. Remove winning row, add new row to beginning, increment multiplier.
    * If winning row found multiply by 100 for score.
    */
-  const checkForCompleteRow = useCallback(() => {
-    const row = numberOfRows - 2; // -2 to skip the floor row
-    let winningRowsFound = 0;
-    let didFindWinningRow = false;
+  // const checkForCompleteRow = () => {
+  //   const row = numberOfRows - 2; // -2 to skip the floor row
+  //   let winningRowsFound = 0;
+  //   let didFindWinningRow = false;
 
-    /* We remove and add rows on a clone of the board. This is because we want to animate
-     * the cells in the row. If the board gets updated whilst the animation is in progress
-     * then the animations will be on the wrong rows and mess up the board.
-     */
-    const cloneBoard = cloneArray(board);
+  //   /* We remove and add rows on a clone of the board. This is because we want to animate
+  //    * the cells in the row. If the board gets updated whilst the animation is in progress
+  //    * then the animations will be on the wrong rows and mess up the board.
+  //    */
+  //   const cloneBoard = cloneArray(state.board);
 
-    for (let i = row; i >= 0; i--) {
-      if (cloneBoard[i].every((row) => row < 0)) {
-        cloneBoard.splice(i, 1); // Remove complete row from board
-        cloneBoard.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
+  //   for (let i = row; i >= 0; i--) {
+  //     if (cloneBoard[i].every((row) => row < 0)) {
+  //       cloneBoard.splice(i, 1); // Remove complete row from board
+  //       cloneBoard.unshift([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]); // add new row to board start
 
-        winningRowsFound += 1;
-        didFindWinningRow = true;
-        i++; // Put the index back 1 as the rows have shifted down
-      }
-    }
+  //       winningRowsFound += 1;
+  //       didFindWinningRow = true;
+  //       i++; // Put the index back 1 as the rows have shifted down
+  //     }
+  //   }
 
-    // Animate the rows
-    for (let i = row; i >= 0; i--) {
-      if (board[i].every((row) => row < 0)) {
-        animateWinningRow(i, cloneBoard);
-      }
-    }
+  //   // Animate the rows
+  //   for (let i = row; i >= 0; i--) {
+  //     if (state.board[i].every((row) => row < 0)) {
+  //       animateWinningRow(i, cloneBoard);
+  //     }
+  //   }
 
-    if (didFindWinningRow) {
-      updateScore(winningRowsFound);
-    } else {
-      setStartingPiece();
-    }
-  }, [animateWinningRow, board, numberOfRows, setStartingPiece, updateScore]);
+  //   if (didFindWinningRow) {
+  //     updateScore(winningRowsFound);
+  //   } else {
+  //     setStartingPiece();
+  //   }
+  // };
 
   /*
    * Maps through rows & columns and negates positive numbered squares in order
    * to stop them from being moved
    */
-  const freezeTetromino = useCallback(() => {
-    const newBoard = cloneArray(board).map((row) => {
-      return row.map((piece) => (piece > 0 ? -Math.abs(piece) : piece));
-    });
-
-    setBoard(newBoard);
-    setPreviousBoard(newBoard);
-  }, [board]);
+  // const freezeTetromino = () => {
+  //   const newBoard = cloneArray(state.board).map((row) => {
+  //     return row.map((piece) => (piece > 0 ? -Math.abs(piece) : piece));
+  //   });
+  //   setBoard(newBoard);
+  //   setPreviousBoard((prevBoard) => {
+  //     return newBoard;
+  //   });
+  // };
 
   /*
    * Places piece in new position on a clean board and compares new board with current board. If piece
    * can move to new position then updates state with new board.
    */
-  const moveTetromino = useCallback(
-    (activeTetromino, newDirection) => {
-      setBoard(
-        addTetrominoToBoard(
-          cloneArray(previousBoard),
-          activeTetromino.matrix,
-          newDirection[0],
-          newDirection[1]
-        )
-      );
-      setPosition({ row: newDirection[0], column: newDirection[1] });
-    },
-    [previousBoard]
-  );
+  // const moveTetromino = useCallback(
+  //   (activeTetromino, newDirection) => {
+  //     const newBoard = addTetrominoToBoard(
+  //       cloneArray(previousBoard),
+  //       activeTetromino.matrix,
+  //       newDirection[0],
+  //       newDirection[1]
+  //     );
+
+  //     setBoard(newBoard);
+
+  //     setPosition((prevPosition) => {
+  //       return { row: newDirection[0], column: newDirection[1] };
+  //     });
+  //   },
+  //   [previousBoard]
+  // );
 
   /*
    * Rotate the active game piece, add the piece to a temp board, test if the new
    * piece lands on an invalid cell on the current board. if it doesn't then set
    * the current board to the temp board
    */
-  const rotateTetromino = useCallback(() => {
-    const rotatedTetromino = rotateMatrix(activeTetromino.matrix);
-    let mBoard = addTetrominoToBoard(
-      cloneArray(previousBoard),
-      rotatedTetromino,
-      position.row,
-      position.column
-    );
+  // const rotateTetromino = useCallback(() => {
+  //   const rotatedTetromino = rotateMatrix(activeTetromino.matrix);
+  //   let mBoard = addTetrominoToBoard(
+  //     cloneArray(previousBoard),
+  //     rotatedTetromino,
+  //     position.row,
+  //     position.column
+  //   );
 
-    if (compareBoards(board, mBoard)) {
-      setBoard(mBoard);
-      setActiveTetromino({ matrix: rotatedTetromino });
-    }
-  }, [activeTetromino.matrix, board, position.column, position.row, previousBoard]);
+  //   if (compareBoards(state.board, mBoard)) {
+  //     setBoard(mBoard);
+  //     setActiveTetromino((prevActiveTetromino) => {
+  //       return { matrix: rotatedTetromino };
+  //     });
+  //   }
+  // }, [activeTetromino.matrix, position, previousBoard]);
 
-  const canMove = useCallback(
-    (direction) => {
-      let newDirection;
-      switch (direction) {
-        case 'ArrowLeft':
-          newDirection = [position.row, position.column - 1];
-          break;
-        case 'ArrowRight':
-          newDirection = [position.row, position.column + 1];
-          break;
-        case 'ArrowDown':
-        default:
-          newDirection = [position.row + 1, position.column];
-          break;
-      }
+  // const canMove = useCallback(
+  //   (direction) => {
+  //     let newDirection;
+  //     switch (direction) {
+  //       case 'ArrowLeft':
+  //         newDirection = [position.row, position.column - 1];
+  //         break;
+  //       case 'ArrowRight':
+  //         newDirection = [position.row, position.column + 1];
+  //         break;
+  //       case 'ArrowDown':
+  //       default:
+  //         newDirection = [position.row + 1, position.column];
+  //         break;
+  //     }
 
-      const mBoard = addTetrominoToBoard(
-        cloneArray(board),
-        activeTetromino.matrix,
-        ...newDirection
-      );
+  //     const mBoard = addTetrominoToBoard(
+  //       cloneArray(state.board),
+  //       activeTetromino.matrix,
+  //       ...newDirection
+  //     );
 
-      if (compareBoards(board, mBoard)) {
-        moveTetromino(activeTetromino, newDirection);
-        return true;
-      }
-      return false;
-    },
-    [activeTetromino, board, moveTetromino, position.column, position.row]
-  );
+  //     if (compareBoards(state.board, mBoard)) {
+  //       moveTetromino(activeTetromino, newDirection);
+  //       return true;
+  //     }
+  //     return false;
+  //   },
+  //   [activeTetromino, state.board, moveTetromino, position]
+  // );
 
   /*
    * Will try move activeTetromino 'Down'. If it cannot move 'Down' that piece is set to be static
    * and the next tetromino is added at the starting position.
    */
   const runCycle = useCallback(() => {
-    let canTetrominoMove = canMove('ArrowDown');
-    if (canTetrominoMove === false) {
-      freezeTetromino();
-      checkForCompleteRow();
-    }
-  }, [canMove, checkForCompleteRow, freezeTetromino]);
+    // let canTetrominoMove = canMove('ArrowDown');
+    const canTetrominoMove = false;
 
-  /*
-   * Keypress events
-   */
-  const keyPress = useCallback(
-    (event) => {
-      event.preventDefault();
-      const key = event.code;
-      if (['Space', 'ArrowRight', 'ArrowLeft', 'ArrowDown'].includes(key)) {
-        switch (key) {
-          case 'Space':
-            rotateTetromino();
-            break;
-          case 'ArrowRight':
-          case 'ArrowLeft':
-          case 'ArrowDown':
-          default:
-            canMove(key);
-            break;
-        }
-      }
-    },
-    [canMove, rotateTetromino]
-  );
+    if (canTetrominoMove === false) {
+      setActiveTetromino((prevActiveTetromino) => {
+        return {
+          matrix: nextTetromino.matrix,
+          value: nextTetromino.value,
+        };
+      });
+      setNextTetromino((prevNextTetromino) => {
+        return getRandomTetromino();
+      });
+      // freezeTetromino();
+      // checkForCompleteRow();
+    }
+  }, [nextTetromino]);
 
   useEffect(() => {
     setStartingPiece();
   }, []);
+
+  /*
+   * Keypress events
+   */
+  const keyPress = (event) => {
+    event.preventDefault();
+    const key = event.code;
+    if (['Space', 'ArrowRight', 'ArrowLeft', 'ArrowDown'].includes(key)) {
+      switch (key) {
+        case 'Space':
+          // rotateTetromino();
+          break;
+        case 'ArrowRight':
+        case 'ArrowLeft':
+        case 'ArrowDown':
+        default:
+          // canMove(key);
+          break;
+      }
+    }
+  };
 
   useEffect(() => {
     window.addEventListener('keydown', keyPress);
@@ -289,7 +310,11 @@ const Tetris = () => {
     };
   }, [keyPress]);
 
-  useInterval(runCycle, 1000);
+  useEffect(() => {
+    runCycle();
+  }, []);
+
+  // useInterval(runCycle, 1000);
 
   return (
     <div className='main'>
@@ -302,9 +327,9 @@ const Tetris = () => {
             </div>
             {gameStatus && (
               <div className='overlay game-board-stack'>
-                <span className='overlay-text' onClick={resetGame}>
+                {/* <span className='overlay-text' onClick={resetGame}>
                   Tap here to play again
-                </span>
+                </span> */}
               </div>
             )}
           </div>
@@ -317,11 +342,11 @@ const Tetris = () => {
           />
         </div>
       </div>
-      <div className='controls-wrapper'>
+      {/* <div className='controls-wrapper'>
         <div className='controls'>
           <Controls canMove={canMove} rotateTetromino={rotateTetromino} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
