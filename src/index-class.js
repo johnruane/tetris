@@ -7,7 +7,8 @@ import {
   compareBoards,
   rotateMatrix,
 } from './lib/helpers.js';
-import { gameBoard, tetrominos } from './lib/matrices.js';
+import { tetrominos } from './lib/matrices.js';
+import { gameBoard } from './lib/board.js';
 import Board from './components/Board.js';
 import Controls from './components/Controls.js';
 import SidePanel from './components/SidePanel.js';
