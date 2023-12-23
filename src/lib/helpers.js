@@ -39,7 +39,7 @@ export function cloneArray(array) {
 export function addTetrominoToBoard(board, tetromino, r, c) {
   tetromino.forEach((row, i) => {
     row.forEach((cell, j) => {
-      if (cell > 0 && r + i < board.length && c + j < board[0].length) {
+      if (cell !== 0 && r + i < board.length && c + j < board[0].length) {
         board[r + i][c + j] = cell;
       }
     });
@@ -70,6 +70,26 @@ export function compareBoards(board, newBoard) {
 }
 
 /**
+ * Takes @position object, @tetro matrix and @board and returns false if an active piece in @tetro matrix is
+ * in the same position as a NON zero position in @board
+ *
+ * @param {{r: number, c: number}} position
+ * @param {Number[][]} tetro
+ * @param {Number[][]} board
+ * @return {Boolean} Tetromino can be moved to position on @board
+ */
+export function canTetrominoMoveToPosition(position, tetro, board) {
+  for (let i = 0, rLen = tetro.length; i < rLen; i++) {
+    for (let j = 0, cLen = tetro[0].length - 1; j <= cLen; j++) {
+      if (tetro[i][j] > 0 && board[position.r + i][position.c + j] !== 0) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
  * Takes @matrix and rotates the rows
  *
  * @param {Number[][]} matrix
@@ -87,4 +107,16 @@ export function rotateMatrix(matrix) {
     newMatrix.push(row);
   }
   return newMatrix;
+}
+
+/**
+ * Takes @tetro matrix and negates ONLY positive integers
+ *
+ * @param {Number[][]} tetro
+ * @return {Number[][]} tetro negated
+ */
+export function negateTetromino(tetro) {
+  return tetro.map((row) =>
+    row.map((value) => (Number.isInteger(value) && value > 0 ? -value : value))
+  );
 }

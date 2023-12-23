@@ -4,11 +4,11 @@ import ReactDOM from 'react-dom';
 
 /* Helpers */
 import {
-  convertScore,
+  canTetrominoMoveToPosition,
   cloneArray,
   addTetrominoToBoard,
-  compareBoards,
   rotateMatrix,
+  negateTetromino,
 } from './lib/helpers.js';
 
 /* Lib */
@@ -76,16 +76,42 @@ const Tetris = () => {
       newC = position.c + 1;
     }
 
-    const mBoard = addTetrominoToBoard(cloneArray(staticBoard), currentTetro.matrix, {
-      r: newR,
-      c: newC,
-    });
+    const canMove = canTetrominoMoveToPosition(
+      {
+        r: newR,
+        c: newC,
+      },
+      currentTetro.matrix,
+      staticBoard
+    );
 
-    if (compareBoards(staticBoard, mBoard)) {
+    if (canMove) {
       setPosition({
         r: newR,
         c: newC,
       });
+    }
+
+    const canMoveDown = canTetrominoMoveToPosition(
+      {
+        r: position.r + 1,
+        c: position.c,
+      },
+      currentTetro.matrix,
+      staticBoard
+    );
+
+    if (!canMoveDown) {
+      const newBoard = addTetrominoToBoard(
+        cloneArray(staticBoard),
+        negateTetromino(currentTetromino.matrix),
+        position.r,
+        position.c
+      );
+      setStaticBoard(newBoard);
+      setPosition({ r: 0, c: 4 });
+      setCurrentTetromino(nextTetromino);
+      setNextTetromino(getRandomTetromino());
     }
   };
 
