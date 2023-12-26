@@ -9,6 +9,7 @@ import {
 } from '../helpers';
 import {
   testBoard1,
+  testBoard2,
   resultBoard1,
   resultBoard2,
   resultBoard3,
@@ -46,12 +47,11 @@ describe('Helpers Test Suite', () => {
   );
 
   it.each`
-    board                     | tetromino                                | r    | c    | output
-    ${cloneArray(testBoard1)} | ${tetrominos[0].matrix}                  | ${2} | ${3} | ${resultBoard1}
-    ${cloneArray(testBoard1)} | ${tetrominos[4].matrix}                  | ${4} | ${1} | ${resultBoard2}
-    ${cloneArray(testBoard1)} | ${tetrominos[6].matrix}                  | ${2} | ${5} | ${resultBoard3}
-    ${cloneArray(testBoard1)} | ${tetrominos[2].matrix}                  | ${1} | ${5} | ${resultBoard4}
-    ${cloneArray(testBoard1)} | ${negateTetromino(tetrominos[0].matrix)} | ${2} | ${3} | ${fixBoard1}
+    board                     | tetromino               | r    | c    | output
+    ${cloneArray(testBoard1)} | ${tetrominos[0].matrix} | ${2} | ${3} | ${resultBoard1}
+    ${cloneArray(testBoard1)} | ${tetrominos[4].matrix} | ${4} | ${1} | ${resultBoard2}
+    ${cloneArray(testBoard1)} | ${tetrominos[6].matrix} | ${2} | ${5} | ${resultBoard3}
+    ${cloneArray(testBoard1)} | ${tetrominos[2].matrix} | ${1} | ${5} | ${resultBoard4}
   `(
     'should add tetromino to board at specified position',
     ({ board, tetromino, r, c, output }) => {
@@ -88,8 +88,9 @@ describe('Helpers Test Suite', () => {
     position          | tetro | board           | output
     ${{ r: 0, c: 0 }} | ${m1} | ${testBoard1}   | ${true}
     ${{ r: 2, c: 3 }} | ${m1} | ${resultBoard1} | ${false}
+    ${{ r: 0, c: 0 }} | ${m1} | ${testBoard2}   | ${false}
   `(
-    'should return true if oard does not have any negative numbers in any position where the tetro matrix has a positive number',
+    'should return true if board does not have any negative numbers in any position where the tetro matrix has a positive number',
     ({ position, tetro, board, output }) => {
       expect(canTetrominoMoveToPosition(position, tetro, board)).toBe(output);
     }

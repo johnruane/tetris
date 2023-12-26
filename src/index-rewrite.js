@@ -47,20 +47,17 @@ const getRandomTetromino = () => {
  */
 
 const Tetris = () => {
-  const numberOfRows = gameBoard.length;
-  const currentTetro = getRandomTetromino();
-  const nextTetro = getRandomTetromino();
-
   const [position, setPosition] = useState({ r: 0, c: 4 });
 
   const [displayBoard, setDisplayBoard] = useState(gameBoard);
   const [staticBoard, setStaticBoard] = useState(gameBoard);
 
-  const [currentTetromino, setCurrentTetromino] = useState(currentTetro);
-  const [nextTetromino, setNextTetromino] = useState(nextTetro);
+  const [currentTetromino, setCurrentTetromino] = useState(getRandomTetromino());
+  const [nextTetromino, setNextTetromino] = useState(getRandomTetromino());
 
-  /* A function to update the 'displayBoard' either via ''useInterval', in which case 'direction' is
-   * 'undefined', or via 'keyPress'.
+  /*
+   * Update the 'displayBoard' either via 'useInterval', in which case 'direction' is
+   * 'undefined', which is 'Down', or via 'keyPress'.
    */
   const updateDisplayBoard = (direction) => {
     let newR = position.r;
@@ -81,7 +78,7 @@ const Tetris = () => {
         r: newR,
         c: newC,
       },
-      currentTetro.matrix,
+      currentTetromino.matrix,
       staticBoard
     );
 
@@ -92,23 +89,20 @@ const Tetris = () => {
       });
     }
 
-    const canMoveDown = canTetrominoMoveToPosition(
-      {
-        r: position.r + 1,
-        c: position.c,
-      },
-      currentTetro.matrix,
-      staticBoard
-    );
+    /*
+     * If direction is 'undefined', then we are in a useInterval move, so if canMove === false then the
+     * tetromino can no longer move down and play moves to the next tetromino.
+     */
 
-    if (!canMoveDown) {
-      const newBoard = addTetrominoToBoard(
-        cloneArray(staticBoard),
-        negateTetromino(currentTetromino.matrix),
-        position.r,
-        position.c
+    if (!canMove && !direction) {
+      setStaticBoard(
+        addTetrominoToBoard(
+          cloneArray(staticBoard),
+          negateTetromino(currentTetromino.matrix),
+          position.r,
+          position.c
+        )
       );
-      setStaticBoard(newBoard);
       setPosition({ r: 0, c: 4 });
       setCurrentTetromino(nextTetromino);
       setNextTetromino(getRandomTetromino());
@@ -126,10 +120,21 @@ const Tetris = () => {
       updateDisplayBoard(key);
     }
     if (key === 'Space') {
-      setCurrentTetromino((current) => ({
-        matrix: rotateMatrix(current.matrix),
-        value: current.value,
-      }));
+      const rotatedMatrix = rotateMatrix(currentTetromino.matrix);
+      const canMove = canTetrominoMoveToPosition(
+        {
+          r: position.r,
+          c: position.c,
+        },
+        rotatedMatrix,
+        staticBoard
+      );
+      if (canMove) {
+        setCurrentTetromino({
+          matrix: rotatedMatrix,
+          value: currentTetromino.value,
+        });
+      }
     }
   };
 
