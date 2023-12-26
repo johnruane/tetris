@@ -47,7 +47,7 @@ const initialState = {
   fallSpeed: 1000,
   level: 1,
   lines: 0,
-  score: '0000000',
+  score: '000000',
   gameStatus: '',
 };
 
