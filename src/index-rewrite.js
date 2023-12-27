@@ -12,8 +12,8 @@ import {
 } from './lib/helpers.js';
 
 /* Lib */
-import { tetrominos } from './lib/matrices.js';
 import { gameBoard } from './lib/board.js';
+import { getRandomTetromino } from './lib/randomTetromino.js';
 
 /* Components */
 import Board from './components/Board.js';
@@ -24,11 +24,6 @@ import { useInterval } from './hooks/useInterval.js';
 
 /* Styles */
 import './index.css';
-
-const getRandomTetromino = () => {
-  const tetro = tetrominos[Math.floor(Math.random() * Math.floor(tetrominos.length))];
-  return { matrix: tetro.matrix, value: tetro.value };
-};
 
 /*
  * @previousBoard: The board without the current moving piece. When moving or rotating a piece,
@@ -55,22 +50,66 @@ const Tetris = () => {
   const [currentTetromino, setCurrentTetromino] = useState(getRandomTetromino());
   const [nextTetromino, setNextTetromino] = useState(getRandomTetromino());
 
+  const endCurrentTetrominoPlay = () => {
+    setPosition({ r: 0, c: 4 });
+    setCurrentTetromino(nextTetromino);
+    setNextTetromino(getRandomTetromino());
+  };
+
+  /*
+   * Function to progress the active tetromino downwards on interval. If the
+   * tetromino can no longer move down, the position is reset and play moves to the next tetromino.
+   */
+  const moveTetrominoDown = () => {
+    let newR = position.r + 1;
+
+    const canMove = canTetrominoMoveToPosition(
+      {
+        r: newR,
+        c: position.c,
+      },
+      currentTetromino.matrix,
+      staticBoard
+    );
+
+    if (canMove) {
+      setPosition({
+        r: newR,
+        c: position.c,
+      });
+    } else {
+      setStaticBoard(
+        addTetrominoToBoard(
+          cloneArray(staticBoard),
+          negateTetromino(currentTetromino.matrix),
+          position.r,
+          position.c
+        )
+      );
+      endCurrentTetrominoPlay();
+    }
+  };
+
   /*
    * Update the 'displayBoard' either via 'useInterval', in which case 'direction' is
-   * 'undefined', which is 'Down', or via 'keyPress'.
+   * 'undefined' or via 'keyPress'.
    */
-  const updateDisplayBoard = (direction) => {
+  const moveTetrominoInDirection = (direction) => {
     let newR = position.r;
     let newC = position.c;
 
-    if (!direction || direction === 'ArrowDown') {
-      newR = position.r + 1;
-    }
-
-    if (direction === 'ArrowLeft') {
-      newC = position.c - 1;
-    } else if (direction === 'ArrowRight') {
-      newC = position.c + 1;
+    switch (direction) {
+      case 'ArrowLeft':
+        newC = position.c - 1;
+        break;
+      case 'ArrowRight':
+        newC = position.c + 1;
+        break;
+      case 'ArrowDown':
+        newR = position.r + 1;
+        break;
+      default:
+        return;
     }
 
     const canMove = canTetrominoMoveToPosition(
@@ -88,25 +127,6 @@ const Tetris = () => {
         c: newC,
       });
     }
-
-    /*
-     * If direction is 'undefined', then we are in a useInterval move, so if canMove === false then the
-     * tetromino can no longer move down and play moves to the next tetromino.
-     */
-
-    if (!canMove && !direction) {
-      setStaticBoard(
-        addTetrominoToBoard(
-          cloneArray(staticBoard),
-          negateTetromino(currentTetromino.matrix),
-          position.r,
-          position.c
-        )
-      );
-      setPosition({ r: 0, c: 4 });
-      setCurrentTetromino(nextTetromino);
-      setNextTetromino(getRandomTetromino());
-    }
   };
 
   /*
@@ -116,11 +136,13 @@ const Tetris = () => {
   const keyPress = (event) => {
     event.preventDefault();
     const key = event.code;
+
     if (['ArrowRight', 'ArrowLeft', 'ArrowDown'].includes(key)) {
-      updateDisplayBoard(key);
+      moveTetrominoInDirection(key);
     }
+
     if (key === 'Space') {
-      const rotatedMatrix = rotateMatrix(currentTetromino.matrix);
+      const rotatedMatrix = rotateMatrix(currentTetromino);
       const canMove = canTetrominoMoveToPosition(
         {
           r: position.r,
@@ -129,6 +151,7 @@ const Tetris = () => {
         rotatedMatrix,
         staticBoard
       );
+
       if (canMove) {
         setCurrentTetromino({
           matrix: rotatedMatrix,
@@ -162,7 +185,7 @@ const Tetris = () => {
   }, [keyPress]);
 
   /* Start interval to update the 'displayBoard' */
-  useInterval(updateDisplayBoard, 1000);
+  useInterval(moveTetrominoDown, 1000);
 
   return (
     <div className='main'>

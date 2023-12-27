@@ -95,14 +95,16 @@ export function canTetrominoMoveToPosition(position, tetro, board) {
  * @param {Number[][]} matrix
  * @return {Number[][]} Rotated @matrix
  */
-export function rotateMatrix(matrix) {
+export function rotateMatrix(tetromino) {
+  if (tetromino.value === 8) return tetromino.matrix;
+
   let newMatrix = [];
-  const matrixLength = matrix.length - 1;
+  const matrixLength = tetromino.matrix.length - 1;
 
   for (let i = 0; i <= matrixLength; i++) {
     let row = [];
     for (let j = 0; j <= matrixLength; j++) {
-      row.push(matrix[matrixLength - j][i]);
+      row.push(tetromino.matrix[matrixLength - j][i]);
     }
     newMatrix.push(row);
   }
