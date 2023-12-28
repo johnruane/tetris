@@ -2,17 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
-/* Helpers */
-import {
-  canTetrominoMoveToPosition,
-  cloneArray,
-  addTetrominoToBoard,
-  rotateMatrix,
-  negateTetromino,
-} from './lib/helpers.js';
+/* Utils */
+import { canTetrominoMoveToPosition } from './lib/utils/canTetrominoMoveToPosition.js';
+import { addTetrominoToBoard } from './lib/utils/addTetrominoToBoard.js';
+import { cloneArray } from './lib/utils/cloneArray.js';
+import { rotateMatrix } from './lib/utils/rotateMatrix.js';
 
 /* Lib */
-import { gameBoard } from './lib/board.js';
+import { gameBoard2 } from './lib/board.js';
 import { getRandomTetromino } from './lib/randomTetromino.js';
 
 /* Components */
@@ -44,8 +41,8 @@ import './index.css';
 const Tetris = () => {
   const [position, setPosition] = useState({ r: 0, c: 4 });
 
-  const [displayBoard, setDisplayBoard] = useState(gameBoard);
-  const [staticBoard, setStaticBoard] = useState(gameBoard);
+  const [displayBoard, setDisplayBoard] = useState(gameBoard2);
+  const [staticBoard, setStaticBoard] = useState(gameBoard2);
 
   const [currentTetromino, setCurrentTetromino] = useState(getRandomTetromino());
   const [nextTetromino, setNextTetromino] = useState(getRandomTetromino());
@@ -81,7 +78,7 @@ const Tetris = () => {
       setStaticBoard(
         addTetrominoToBoard(
           cloneArray(staticBoard),
-          negateTetromino(currentTetromino.matrix),
+          currentTetromino.matrix,
           position.r,
           position.c
         )
@@ -160,6 +157,44 @@ const Tetris = () => {
       }
     }
   };
+
+  useEffect(() => {
+    let winningRowsFound = 0;
+    let didFindWinningRow = false;
+    const rLen = staticBoard.length - 1;
+
+    /* We remove and add rows on a clone of the board. This is because we want to animate
+     * the cells in the row. If the board gets updated whilst the animation is in progress
+     * then the animations will be on the wrong rows and mess up the board.
+     */
+    const cloneBoard = cloneArray(staticBoard);
+
+    for (let i = rLen; i >= 0; i--) {
+      if (cloneBoard[i].every((row) => row > 0)) {
+        cloneBoard.splice(i, 1); // remove complete row from board
+        cloneBoard.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // add new row to top of board
+
+        winningRowsFound += 1;
+        didFindWinningRow = true;
+        i++; // put the index back 1 as the rows have shifted down
+      }
+    }
+
+    // Animate the rows
+    // for (let i = rLen; i >= 0; i--) {
+    //   if (cloneBoard[i].every((row) => row > 0)) {
+    //     this.animateWinningRow(i, cloneBoard);
+    //   }
+    // }
+
+    if (didFindWinningRow) {
+      setDisplayBoard(cloneBoard);
+      setStaticBoard(cloneBoard);
+      // this.updateScore(winningRowsFound);
+    } else {
+      endCurrentTetrominoPlay();
+    }
+  }, [staticBoard]);
 
   /* Updates 'displayBoard' every time the position or 'currentTertromino' changes. The position is updated
    * every interval. The 'currentTetromino' is updated either via 'rotate' or when the 'nextTetromino'

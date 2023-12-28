@@ -1,54 +1,4 @@
 /**
- * Creates a string score with the correct zero padding.
- * Multiplier is applied twice to create a bigger return score
- *
- * Example: 100 * 2 * 2 = 400
- * Example: 100 * 4 * 4 = 1600
- *
- * @param {String} score
- * @param {Number} m Multiplier
- * @return {String} Updated @score padded with zeros
- */
-export function convertScore(score, m) {
-  const s = parseInt(score) + 100 * m * m;
-  return s.toString().padStart(7, '0');
-}
-
-/**
- * Deep clones array
- *
- * @return {Array} Array copy
- */
-export function cloneArray(array) {
-  const strArray = JSON.stringify(array);
-  return JSON.parse(strArray);
-}
-
-/**
- * Adds @tetromino to @board at specified @r & @c
- * @r & @c refer to the top left corner of the @tetromino
- * @tetromino cells that are positioned outside the bounds of @board are ignored
- * Only positive @tetromino values are added to @board, zeros are ignored
- *
- * @param {Number[][]} board
- * @param {Number[][]} tetromino
- * @param {Number} r Row
- * @param {Number} c Column
- * @return {Number[][]} New board with @tetromino added
- */
-export function addTetrominoToBoard(board, tetromino, r, c) {
-  tetromino.forEach((row, i) => {
-    row.forEach((cell, j) => {
-      if (cell !== 0 && r + i < board.length && c + j < board[0].length) {
-        board[r + i][c + j] = cell;
-      }
-    });
-  });
-
-  return board;
-}
-
-/**
  * Takes @board and @newBoard and returns true if an active piece on @newBoard is
  * NOT on a negative piece on @board
  *
@@ -67,48 +17,6 @@ export function compareBoards(board, newBoard) {
     }
   }
   return true;
-}
-
-/**
- * Takes @position object, @tetro matrix and @board and returns false if an active piece in @tetro matrix is
- * in the same position as a NON zero position in @board
- *
- * @param {{r: number, c: number}} position
- * @param {Number[][]} tetro
- * @param {Number[][]} board
- * @return {Boolean} Tetromino can be moved to position on @board
- */
-export function canTetrominoMoveToPosition(position, tetro, board) {
-  for (let i = 0, rLen = tetro.length; i < rLen; i++) {
-    for (let j = 0, cLen = tetro[0].length - 1; j <= cLen; j++) {
-      if (tetro[i][j] > 0 && board[position.r + i][position.c + j] !== 0) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-/**
- * Takes @matrix and rotates the rows
- *
- * @param {Number[][]} matrix
- * @return {Number[][]} Rotated @matrix
- */
-export function rotateMatrix(tetromino) {
-  if (tetromino.value === 8) return tetromino.matrix;
-
-  let newMatrix = [];
-  const matrixLength = tetromino.matrix.length - 1;
-
-  for (let i = 0; i <= matrixLength; i++) {
-    let row = [];
-    for (let j = 0; j <= matrixLength; j++) {
-      row.push(tetromino.matrix[matrixLength - j][i]);
-    }
-    newMatrix.push(row);
-  }
-  return newMatrix;
 }
 
 /**
