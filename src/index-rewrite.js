@@ -7,6 +7,8 @@ import { canTetrominoMoveToPosition } from './lib/utils/canTetrominoMoveToPositi
 import { addTetrominoToBoard } from './lib/utils/addTetrominoToBoard.js';
 import { cloneArray } from './lib/utils/cloneArray.js';
 import { rotateMatrix } from './lib/utils/rotateMatrix.js';
+import { findCompletedRows } from './lib/utils/findCompletedRows';
+import { removeRowsFromBoard } from './lib/utils/removeRowsFromBoard.js';
 
 /* Lib */
 import { gameBoard2 } from './lib/board.js';
@@ -158,45 +160,84 @@ const Tetris = () => {
     }
   };
 
-  useEffect(() => {
-    let winningRowsFound = 0;
-    let didFindWinningRow = false;
-    const rLen = staticBoard.length - 1;
+  /*
+   * Gets the DOM row pased as an index, loops though each cell performing the animation. If onFinishCallback is passed
+   * then this is executed when animation finishes.
+   * The cancel() call removes the effects of the animation, restoring the cell scale.
+   */
+  const animateCompleteRow = (index, onFinishCallback) => {
+    // Gets the DOM row passed as an index
+    const rowDOM = document
+      .querySelectorAll('[data-animation="game-board"]')[0]
+      .children.item(index);
 
-    /* We remove and add rows on a clone of the board. This is because we want to animate
-     * the cells in the row. If the board gets updated whilst the animation is in progress
-     * then the animations will be on the wrong rows and mess up the board.
+    /*
+     * Iterate through each element in the row and perform scale & rotate transform on the ::after element. We don't animate
+     * the DOM element itself as that would effect the layout of the board. The ::after element is what contains the block colours.
      */
+    Array.from(rowDOM.children).forEach((element, index, array) => {
+      const rabbitDownKeyframes = new KeyframeEffect(
+        element,
+        [
+          { transform: 'scale(1) rotate(0deg)' },
+          { transform: 'scale(0) rotate(-360deg)', offset: 1 },
+        ],
+        { duration: 550, fill: 'forwards', pseudoElement: '::after' }
+      );
+      const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
+      rabbitDownAnimation.onfinish = () => {
+        rabbitDownAnimation.cancel();
+        // Only execute onFinishCallback once on the last element in the array
+        if (onFinishCallback && index === array.length - 1) {
+          // onFinishCallback();
+        }
+      };
+      rabbitDownAnimation.play();
+    });
+  };
+
+  /*
+   * When staticBoard is updated, that signals that a play has ended so we need to check for completed
+   * rows on the board. Completed rows are returned in an array of indexes. Indexed rows are removed from
+   * a clone of the static board. The updated board is passed as an argument to the animateWinningRows
+   * function to be executed as a 'onFinish' function if the index is the last row to be animated.
+   */
+  useEffect(() => {
     const cloneBoard = cloneArray(staticBoard);
+    /*
+     * We sort the indexes ascending so that rows are removed from top to bottom. If descending then the board
+     * indexes would be wrong as we shift the rows downwards after removing a row.
+     */
+    const indexesOfCompleteRows = findCompletedRows(cloneBoard).sort((a, b) => a - b);
+    const updatedBoard = removeRowsFromBoard(cloneBoard, indexesOfCompleteRows);
 
-    for (let i = rLen; i >= 0; i--) {
-      if (cloneBoard[i].every((row) => row > 0)) {
-        cloneBoard.splice(i, 1); // remove complete row from board
-        cloneBoard.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // add new row to top of board
-
-        winningRowsFound += 1;
-        didFindWinningRow = true;
-        i++; // put the index back 1 as the rows have shifted down
-      }
+    // Callback function to be executed on the last animation
+    function updateStaticBoardCallback() {
+      setStaticBoard(updatedBoard);
     }
 
-    // Animate the rows
-    // for (let i = rLen; i >= 0; i--) {
-    //   if (cloneBoard[i].every((row) => row > 0)) {
-    //     this.animateWinningRow(i, cloneBoard);
-    //   }
-    // }
-
-    if (didFindWinningRow) {
-      setDisplayBoard(cloneBoard);
-      setStaticBoard(cloneBoard);
-      // this.updateScore(winningRowsFound);
+    /*
+     * Animate each complete row. Only pass callback function for the last row to be animated as updating the static
+     * board when there are multiple rows to be animated causes index issues. If no compplete rows are found we reset
+     * gameplay for the next playing tetromino.
+     */
+    if (indexesOfCompleteRows.length > 0) {
+      indexesOfCompleteRows.forEach((element, index, array) => {
+        animateCompleteRow(
+          element,
+          index === array.length - 1 ? updateStaticBoardCallback : null
+        );
+      });
+      // setTimeout(() => {
+      //   setStaticBoard(updatedBoard);
+      // }, 250);
     } else {
       endCurrentTetrominoPlay();
     }
   }, [staticBoard]);
 
-  /* Updates 'displayBoard' every time the position or 'currentTertromino' changes. The position is updated
+  /*
+   * Updates 'displayBoard' every time the position or 'currentTertromino' changes. The position is updated
    * every interval. The 'currentTetromino' is updated either via 'rotate' or when the 'nextTetromino'
    * is put into play.
    */
