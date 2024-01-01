@@ -18,7 +18,7 @@ export const animateCompleteRow = (index, onFinishCallback) => {
       element,
       [{ opacity: 0 }, { opacity: 1 }],
       {
-        duration: 250,
+        duration: 200,
         iterations: 3,
         fill: 'backwards',
         pseudoElement: '::after',
