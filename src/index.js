@@ -1,12 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  convertScore,
-  cloneArray,
-  addTetrominoToBoard,
-  compareBoards,
-  rotateMatrix,
-} from './lib/helpers.js';
+import { compareBoards } from './lib/helpers.js';
+import { addTetrominoToBoard } from './lib/utils/addTetrominoToBoard.js';
+import { cloneArray } from './lib/utils/cloneArray.js';
+import { rotateMatrix } from './lib/utils/rotateMatrix.js';
+import { convertScore } from './lib/utils/convertScore.js';
 import { tetrominos } from './lib/matrices.js';
 import { gameBoard } from './lib/board.js';
 import Board from './components/Board.js';

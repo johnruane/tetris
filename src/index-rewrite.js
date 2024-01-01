@@ -4,11 +4,12 @@ import ReactDOM from 'react-dom';
 
 /* Utils */
 import { canTetrominoMoveToPosition } from './lib/utils/canTetrominoMoveToPosition.js';
-import { addTetrominoToBoard } from './lib/utils/addTetrominoToBoard.js';
-import { cloneArray } from './lib/utils/cloneArray.js';
-import { rotateMatrix } from './lib/utils/rotateMatrix.js';
+import { addTetrominoToBoard } from './lib/utils/addTetrominoToBoard';
+import { cloneArray } from './lib/utils/cloneArray';
+import { rotateMatrix } from './lib/utils/rotateMatrix';
+import { animateCompleteRow } from './lib/utils/animateCompleteRow';
 import { findCompletedRows } from './lib/utils/findCompletedRows';
-import { removeRowsFromBoard } from './lib/utils/removeRowsFromBoard.js';
+import { removeRowsFromBoard } from './lib/utils/removeRowsFromBoard';
 
 /* Lib */
 import { gameBoard2 } from './lib/board.js';
@@ -161,42 +162,6 @@ const Tetris = () => {
   };
 
   /*
-   * Gets the DOM row pased as an index, loops though each cell performing the animation. If onFinishCallback is passed
-   * then this is executed when animation finishes.
-   * The cancel() call removes the effects of the animation, restoring the cell scale.
-   */
-  const animateCompleteRow = (index, onFinishCallback) => {
-    // Gets the DOM row passed as an index
-    const rowDOM = document
-      .querySelectorAll('[data-animation="game-board"]')[0]
-      .children.item(index);
-
-    /*
-     * Iterate through each element in the row and perform scale & rotate transform on the ::after element. We don't animate
-     * the DOM element itself as that would effect the layout of the board. The ::after element is what contains the block colours.
-     */
-    Array.from(rowDOM.children).forEach((element, index, array) => {
-      const rabbitDownKeyframes = new KeyframeEffect(
-        element,
-        [
-          { transform: 'scale(1) rotate(0deg)' },
-          { transform: 'scale(0) rotate(-360deg)', offset: 1 },
-        ],
-        { duration: 550, fill: 'forwards', pseudoElement: '::after' }
-      );
-      const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
-      rabbitDownAnimation.onfinish = () => {
-        rabbitDownAnimation.cancel();
-        // Only execute onFinishCallback once on the last element in the array
-        if (onFinishCallback && index === array.length - 1) {
-          // onFinishCallback();
-        }
-      };
-      rabbitDownAnimation.play();
-    });
-  };
-
-  /*
    * When staticBoard is updated, that signals that a play has ended so we need to check for completed
    * rows on the board. Completed rows are returned in an array of indexes. Indexed rows are removed from
    * a clone of the static board. The updated board is passed as an argument to the animateWinningRows
@@ -217,22 +182,12 @@ const Tetris = () => {
     }
 
     /*
-     * Animate each complete row. Only pass callback function for the last row to be animated as updating the static
-     * board when there are multiple rows to be animated causes index issues. If no compplete rows are found we reset
-     * gameplay for the next playing tetromino.
+     * Animate each complete row.
      */
     if (indexesOfCompleteRows.length > 0) {
-      indexesOfCompleteRows.forEach((element, index, array) => {
-        animateCompleteRow(
-          element,
-          index === array.length - 1 ? updateStaticBoardCallback : null
-        );
+      indexesOfCompleteRows.forEach((element) => {
+        animateCompleteRow(element, updateStaticBoardCallback);
       });
-      // setTimeout(() => {
-      //   setStaticBoard(updatedBoard);
-      // }, 250);
-    } else {
-      endCurrentTetrominoPlay();
     }
   }, [staticBoard]);
 
@@ -250,7 +205,7 @@ const Tetris = () => {
         position.c
       )
     );
-  }, [position, currentTetromino]);
+  }, [position, staticBoard, currentTetromino]);
 
   /* Event listeners for keypress */
   useEffect(() => {
