@@ -331,7 +331,7 @@ p {
 }
 
 /* Left L shape */
-[data-value='4']::after{
+[data-value='4']::after {
   background: #1500ff;
   background: rgb(21,0,255);
   background: linear-gradient(145deg, rgba(21,0,255,1) 0%, rgba(17,0,207,1) 100%);

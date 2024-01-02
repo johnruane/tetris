@@ -1,15 +1,19 @@
+/*
+ * For reference the original Tetris game written as class components.
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { compareBoards } from './lib/helpers.js';
-import { addTetrominoToBoard } from './lib/utils/addTetrominoToBoard.js';
-import { cloneArray } from './lib/utils/cloneArray.js';
-import { rotateMatrix } from './lib/utils/rotateMatrix.js';
-import { convertScore } from './lib/utils/convertScore.js';
-import { tetrominos } from './lib/matrices.js';
-import { gameBoard } from './lib/board.js';
-import Board from './components/Board.js';
-import Controls from './components/Controls.js';
-import SidePanel from './components/SidePanel.js';
+import { compareBoards } from '../lib/helpers.js';
+import { addTetrominoToBoard } from '../lib/utils/addTetrominoToBoard.js';
+import { cloneArray } from '../lib/utils/cloneArray.js';
+import { rotateMatrix } from '../lib/utils/rotateMatrix.js';
+import { convertScore } from '../lib/utils/convertScore.js';
+import { tetrominos } from '../lib/matrices.js';
+import { gameBoard } from '../lib/board.js';
+import Board from '../components/Board.js';
+import Controls from '../components/Controls.js';
+import SidePanel from '../components/Next.js';
 import './index.css';
 
 const getRandomTetromino = () => {

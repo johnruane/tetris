@@ -5,33 +5,33 @@
  */
 export const animateCompleteRow = (index, onFinishCallback) => {
   // Gets the DOM row passed as an index
-  const rowDOM = document
-    .querySelectorAll('[data-animation="game-board"]')[0]
-    .children.item(index);
+  const rowDOM = document.querySelectorAll('[data-animate="row"]').item(index);
 
   /*
    * Iterate through each element in the row and perform scale & rotate transform on the ::after element. We don't animate
    * the DOM element itself as that would effect the layout of the board. The ::after element is what contains the block colours.
    */
-  Array.from(rowDOM.children).forEach((element) => {
-    const rabbitDownKeyframes = new KeyframeEffect(
-      element,
-      [{ opacity: 0 }, { opacity: 1 }],
-      {
-        duration: 200,
-        iterations: 3,
-        fill: 'backwards',
-        pseudoElement: '::after',
-        easing: 'ease-in-out',
-      }
-    );
-    const rabbitDownAnimation = new Animation(rabbitDownKeyframes, document.timeline);
-    rabbitDownAnimation.onfinish = () => {
-      rabbitDownAnimation.cancel();
-      if (onFinishCallback) {
-        onFinishCallback();
-      }
-    };
-    rabbitDownAnimation.play();
+  const animations = Array.from(rowDOM.children).map((element, index, array) => {
+    const rabbitDownAnimation = element.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 150,
+      fill: 'forwards',
+      easing: 'ease-out',
+      pseudoElement: '::after',
+      delay: index * 40,
+    });
+
+    return new Promise((resolve) => {
+      rabbitDownAnimation.onfinish = () => {
+        rabbitDownAnimation.persist();
+        rabbitDownAnimation.cancel();
+        resolve();
+      };
+    });
+  });
+
+  Promise.all(animations).then(() => {
+    if (onFinishCallback) {
+      onFinishCallback();
+    }
   });
 };

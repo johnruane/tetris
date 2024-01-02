@@ -18,8 +18,9 @@ import { getRandomTetromino } from './lib/randomTetromino';
 
 /* Components */
 import Board from './components/Board';
-import SidePanel from './components/SidePanel';
+import Next from './components/Next';
 import Controls from './components/Controls';
+import Panel from './components/Panel';
 
 /* Hooks */
 import { useInterval } from './hooks/useInterval';
@@ -28,18 +29,22 @@ import { useInterval } from './hooks/useInterval';
 import './index.css';
 
 /*
- * @previousBoard: The board without the current moving piece. When moving or rotating a piece,
- * the previous board is a clean board that we can add the moving piece to in order to check
- * the move is valid. Otherwise we'd have to keep removing it on the next cycle.
- * @board: The board with all the static pieces
- * @activeTetromino: The current piece matrix and value
- * @nextTetromino: The next piece
- * @tetrominoPosR: Current row position of top left corner of the matrix
- * @tetrominoPosC: Current column position of top left corner of the matrix
- * @fallSpeed: Interval at which the cycle runs at
- * @level: Level in the game. Increments at interval of levelSpeed
- * @lines: Number of winning rows achieved
- * @score: Score
+ * @position: Current r & c position to place the top left corner of the tetromino on a board.
+ * @displayBoard: The board rendered in the browser.
+ * @staticBoard: We have a static board which does not contain the current moving piece. When a
+ * move is made we check if the @currentTetromino can be placed on the @staticBoard at @position.
+ * If we only had one board we'd have to keep removing the @currentTetromino on the next move.
+ *
+ * @currentTetromino: The current in play tetromino matrix and value.
+ * @nextTetromino: The next tetromino matrix and value.
+ *
+ * @score: Score in the game. Multiplier is added when completing more than one row.
+ * @lines: Number of completed rows achieved.
+ * @level: Level in the game. Level is increased every @speed interval.
+ *
+ * @delay: Interval at which the game runs and the tetromino is moved downwards. This is reduced
+ * over time which increases the speed the tetrominos fall at.
+ *
  * @gameStatus: String for 'Game Over' message
  */
 
@@ -59,7 +64,17 @@ const Tetris = () => {
   const [delay, setDelay] = useState(1000);
   const [speed, setSpeed] = useState(30000);
 
-  const [gameStatus, setGameStatus] = useState('');
+  const [gameOver, setGameOver] = useState(false);
+
+  /*
+   * Function to reset position and cycle tetrominos. Done this way in order to have control of when this
+   * occurs, like when there is a need to wait for an animation to complete.
+   */
+  const makeNextPlay = () => {
+    setPosition({ r: 0, c: 4 });
+    setCurrentTetromino(nextTetromino);
+    setNextTetromino(getRandomTetromino());
+  };
 
   /*
    * Update the 'position' either via 'useInterval', in which case 'direction' is 'undefined' or
@@ -99,8 +114,7 @@ const Tetris = () => {
     }
 
     /*
-     * If both are falsey the piece can no longer move down so set 'staticBoard' to complete the current
-     * play and reset everything for the next piece.
+     * If both are falsey the piece can no longer move down so set 'staticBoard' to complete the current play.
      */
     if (!canMove && !direction) {
       setStaticBoard(
@@ -111,9 +125,6 @@ const Tetris = () => {
           position.c
         )
       );
-      setPosition({ r: 0, c: 4 });
-      setCurrentTetromino(nextTetromino);
-      setNextTetromino(getRandomTetromino());
     }
   };
 
@@ -166,27 +177,35 @@ const Tetris = () => {
      */
     const indexesOfCompleteRows = findCompletedRows(cloneBoard).sort((a, b) => a - b);
     const updatedBoard = removeRowsFromBoard(cloneBoard, indexesOfCompleteRows);
+    const previousDelay = delay;
 
-    // Callback function to be executed on the last animation
+    // Callback function to be executed after the last animation
     function updateStaticBoardCallback() {
       setStaticBoard(updatedBoard);
+      setDelay(previousDelay);
+      makeNextPlay();
     }
 
     /*
-     * Animate each complete row.
+     * Animate each complete row or start next playing piece.
+     * In order to stop play whilst the winning rows are animated we can setDelay(null). We need a reference to the
+     * previous value in order to resume play.
      */
     if (indexesOfCompleteRows.length > 0) {
+      setDelay(null);
       indexesOfCompleteRows.forEach((element) => {
         animateCompleteRow(element, updateStaticBoardCallback);
         setLines((current) => current + 1);
       });
       setScore(convertScore(score, indexesOfCompleteRows.length));
+    } else {
+      makeNextPlay();
     }
   }, [staticBoard]);
 
   /*
    * If tetromino cannot move to position 0, 4 when the 'position' is updated that means the pieces have reached
-   *  the top and it is game over.
+   * the top and it is game over.
    */
   useEffect(() => {
     const canMove = canTetrominoMoveToPosition(
@@ -198,10 +217,11 @@ const Tetris = () => {
       staticBoard
     );
 
+    // End current game.
     if (!canMove) {
       setDelay(null);
       setSpeed(null);
-      setGameStatus('Game Over');
+      setGameOver(true);
     }
   }, [position]);
 
@@ -258,17 +278,14 @@ const Tetris = () => {
         <div className='layout-grid'>
           <p className='title'>TETRIS</p>
           <div className='game-board'>
-            <div className='board-wrapper game-board-stack' data-animation='game-board'>
+            <div className='board-wrapper game-board-stack'>
               <Board board={displayBoard} />
             </div>
           </div>
-          <SidePanel
-            score={score}
-            level={level}
-            lines={lines}
-            nextTetromino={nextTetromino.matrix}
-            gameStatus={gameStatus}
-          />
+          <Panel additionalClasses={'score'} label={'Score'} value={score} />
+          <Panel additionalClasses={'level'} label={'Level'} value={level} />
+          <Panel additionalClasses={'lines'} label={'Lines'} value={lines} />
+          <Next nextTetromino={nextTetromino.matrix} gameOver={gameOver} />
         </div>
       </div>
       <div className='controls-wrapper'>
