@@ -44,6 +44,7 @@ p {
 
 .layout-grid {
   display: grid;
+  grid-template-columns: auto 6rem;
   grid-template-rows: auto repeat(3, 3.5rem) auto;
   grid-template-areas: 
     "title title"
@@ -58,6 +59,7 @@ p {
 
 @media (min-width: 768px) {
   .layout-grid {
+    grid-template-columns: auto 7rem;
     grid-template-rows: auto repeat(3, 3.5rem) auto;
     margin: 3rem 0 0;
   }
