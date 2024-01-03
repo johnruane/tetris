@@ -13,7 +13,7 @@ import { removeRowsFromBoard } from './lib/utils/removeRowsFromBoard';
 import { convertScore } from './lib/utils/convertScore';
 
 /* Lib */
-import { gameBoard2 } from './lib/board';
+import { gameBoard } from './lib/board';
 import { getRandomTetromino } from './lib/randomTetromino';
 
 /* Components */
@@ -51,8 +51,8 @@ import './index.css';
 const Tetris = () => {
   const [position, setPosition] = useState({ r: 0, c: 4 });
 
-  const [displayBoard, setDisplayBoard] = useState(gameBoard2);
-  const [staticBoard, setStaticBoard] = useState(gameBoard2);
+  const [displayBoard, setDisplayBoard] = useState(gameBoard);
+  const [staticBoard, setStaticBoard] = useState(gameBoard);
 
   const [currentTetromino, setCurrentTetromino] = useState(getRandomTetromino());
   const [nextTetromino, setNextTetromino] = useState(getRandomTetromino());

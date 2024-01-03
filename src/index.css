@@ -44,8 +44,7 @@ p {
 
 .layout-grid {
   display: grid;
-  grid-template-columns: auto 4rem;
-  grid-template-rows: auto repeat(3, 3.5rem) 5.375rem;
+  grid-template-rows: auto repeat(3, 3.5rem) auto;
   grid-template-areas: 
     "title title"
     "board score"
@@ -59,8 +58,7 @@ p {
 
 @media (min-width: 768px) {
   .layout-grid {
-    grid-template-columns: auto 6rem;
-    grid-template-rows: auto repeat(3, 3.5rem) 7.375rem auto;
+    grid-template-rows: auto repeat(3, 3.5rem) auto;
     margin: 3rem 0 0;
   }
 }
